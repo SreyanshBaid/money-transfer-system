@@ -112,6 +112,7 @@ public class UserController {
      * @return ResponseEntity with user information
      */
     @GetMapping("/{username}")
+    @PreAuthorize("#username == authentication.name or hasRole('ADMIN')")
     @Operation(summary = "Get user profile", description = "Retrieves user profile information (requires authentication)")
     public ResponseEntity<UserResponse> getUserProfile(@PathVariable String username) {
         log.info("User profile requested for: {}", username);
