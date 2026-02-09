@@ -3,6 +3,8 @@ package com.moneytransfer.controller;
 import com.moneytransfer.config.JwtProperties;
 import com.moneytransfer.dto.request.LoginRequest;
 import com.moneytransfer.dto.response.LoginResponse;
+import com.moneytransfer.dto.response.LogoutResponse;
+import com.moneytransfer.service.TokenBlacklistService;
 import com.moneytransfer.util.JwtUtil;
 import com.moneytransfer.util.RateLimitUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,13 +32,14 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Login and token management")
+@Tag(name = "Authentication", description = "Login, logout and token management")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final JwtProperties jwtProperties;
     private final RateLimitUtil rateLimitUtil;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @PostMapping("/login")
     @Operation(summary = "Login with credentials", description = "Authenticate user and receive JWT token")
@@ -75,6 +79,48 @@ public class AuthController {
         } catch (BadCredentialsException ex) {
             log.warn("Login failed for user: {}", request.getUsername());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "Logout user", description = "Invalidate JWT token by adding it to blacklist")
+    @ApiResponse(responseCode = "200", description = "Logout successful, token invalidated")
+    @ApiResponse(responseCode = "400", description = "No token provided or invalid token format")
+    public ResponseEntity<LogoutResponse> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest()
+                    .body(LogoutResponse.builder()
+                            .message("No token provided")
+                            .success(false)
+                            .build());
+        }
+
+        String token = authHeader.substring(7);
+        try {
+            // Validate token before blacklisting
+            if (jwtUtil.validateToken(token)) {
+                tokenBlacklistService.blacklistToken(token);
+                String username = jwtUtil.extractUsername(token);
+                log.info("User {} logged out successfully", username);
+                
+                return ResponseEntity.ok(LogoutResponse.builder()
+                        .message("Logout successful")
+                        .success(true)
+                        .build());
+            } else {
+                return ResponseEntity.badRequest()
+                        .body(LogoutResponse.builder()
+                                .message("Invalid token")
+                                .success(false)
+                                .build());
+            }
+        } catch (Exception e) {
+            log.error("Logout failed", e);
+            return ResponseEntity.badRequest()
+                    .body(LogoutResponse.builder()
+                            .message("Logout failed: " + e.getMessage())
+                            .success(false)
+                            .build());
         }
     }
 }

@@ -89,6 +89,14 @@ public class JwtUtil {
     }
     
     /**
+     * Extract expiration date from JWT token.
+     */
+    public Date extractExpiration(String token) {
+        Claims claims = extractClaims(token);
+        return claims.getExpiration();
+    }
+    
+    /**
      * Extract all claims from token.
      */
     private Claims extractClaims(String token) {

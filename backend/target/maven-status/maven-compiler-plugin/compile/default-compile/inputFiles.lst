@@ -6,6 +6,7 @@
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/repository/AccountRepository.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/security/CustomUserDetailsService.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/dto/request/UserRegistrationRequest.java
+/home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/dto/response/LogoutResponse.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/domain/exception/DuplicateTransferException.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/domain/entity/User.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/repository/UserRepository.java
@@ -28,6 +29,7 @@
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/dto/request/TransferRequest.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/service/OwnershipService.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/controller/AuthController.java
+/home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/service/TokenBlacklistService.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/dto/response/AccountBalanceResponse.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/util/JwtUtil.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/security/JwtAuthenticationFilter.java

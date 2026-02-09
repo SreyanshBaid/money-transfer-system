@@ -1,6 +1,7 @@
 package com.moneytransfer.config;
 
 import com.moneytransfer.security.JwtAuthenticationFilter;
+import com.moneytransfer.service.TokenBlacklistService;
 import com.moneytransfer.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -42,6 +43,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/v3/api-docs.yaml",
                                 "/auth/login",
+                                "/auth/logout",
                                 "/api/v1/users/forgot-password",
                                 "/api/v1/users/reset-password"
                         ).permitAll()
@@ -55,8 +57,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil) {
-        return new JwtAuthenticationFilter(jwtUtil);
+    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtil jwtUtil, TokenBlacklistService tokenBlacklistService) {
+        return new JwtAuthenticationFilter(jwtUtil, tokenBlacklistService);
     }
 
     /**

@@ -48,6 +48,41 @@ curl -X POST http://localhost:8080/auth/login \
   }'
 ```
 
+### Logout Endpoint
+
+#### `POST /auth/logout`
+Logout user and invalidate JWT token by adding it to blacklist.
+
+**Authentication**: Bearer token required in Authorization header
+
+**Headers**:
+- `Authorization: Bearer <token>`
+
+**Response (200 OK)**:
+```json
+{
+  "message": "Logout successful",
+  "success": true
+}
+```
+
+**Error Responses**:
+- `400 Bad Request` - No token provided, invalid token format, or logout failed
+```json
+{
+  "message": "No token provided",
+  "success": false
+}
+```
+
+**Example**:
+```bash
+curl -X POST http://localhost:8080/auth/logout \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9..."
+```
+
+**Note**: After logout, the token will be blacklisted and cannot be used for authenticated requests. Blacklisted tokens are automatically cleaned up after expiration.
+
 ---
 
 ## User Endpoints

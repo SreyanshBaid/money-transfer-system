@@ -1,4 +1,5 @@
 com/moneytransfer/dto/request/LoginRequest$LoginRequestBuilder.class
+com/moneytransfer/dto/response/LogoutResponse$LogoutResponseBuilder.class
 com/moneytransfer/dto/response/TransferResponse$TransferResponseBuilder.class
 com/moneytransfer/util/RateLimitUtil.class
 com/moneytransfer/config/SecurityUserProperties.class
@@ -12,6 +13,7 @@ com/moneytransfer/domain/exception/AccountNotActiveException.class
 com/moneytransfer/dto/response/LoginResponse$LoginResponseBuilder.class
 com/moneytransfer/dto/request/UserRegistrationRequest.class
 com/moneytransfer/service/TransferService.class
+com/moneytransfer/dto/response/LogoutResponse.class
 com/moneytransfer/domain/entity/TransactionLog.class
 com/moneytransfer/security/CustomUserDetailsService.class
 com/moneytransfer/dto/response/TransactionLogResponse$TransactionLogResponseBuilder.class
@@ -61,4 +63,5 @@ com/moneytransfer/controller/AccountController.class
 com/moneytransfer/config/SecurityConfig.class
 com/moneytransfer/dto/request/ForgotPasswordRequest$ForgotPasswordRequestBuilder.class
 com/moneytransfer/controller/AdminController.class
+com/moneytransfer/service/TokenBlacklistService.class
 com/moneytransfer/dto/request/TransferRequest$TransferRequestBuilder.class

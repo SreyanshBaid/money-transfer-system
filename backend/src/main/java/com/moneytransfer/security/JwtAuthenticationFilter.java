@@ -1,5 +1,6 @@
 package com.moneytransfer.security;
 
+import com.moneytransfer.service.TokenBlacklistService;
 import com.moneytransfer.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,18 +22,21 @@ import java.util.stream.Collectors;
  * 
  * Process:
  * 1. Extract JWT from "Bearer {token}" header
- * 2. Validate token signature and expiration
- * 3. Extract username and roles from token claims
- * 4. Create Authentication object with roles as authorities
- * 5. Set in SecurityContext for downstream authorization checks
+ * 2. Check if token is blacklisted (logged out)
+ * 3. Validate token signature and expiration
+ * 4. Extract username and roles from token claims
+ * 5. Create Authentication object with roles as authorities
+ * 6. Set in SecurityContext for downstream authorization checks
  */
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final TokenBlacklistService tokenBlacklistService;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, TokenBlacklistService tokenBlacklistService) {
         this.jwtUtil = jwtUtil;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @Override
@@ -42,7 +46,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            if (jwtUtil.validateToken(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
+            
+            // Check if token is blacklisted (logged out)
+            if (!tokenBlacklistService.isBlacklisted(token) 
+                && jwtUtil.validateToken(token) 
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
+                
                 String username = jwtUtil.extractUsername(token);
                 List<String> roles = jwtUtil.extractRoles(token);
                 
