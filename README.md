@@ -12,17 +12,17 @@ java -jar target/money-transfer-system-1.0.0.jar
 ```
 
 ### 2. Access Swagger UI
-**Browser**: `http://localhost:8080/swagger-ui.html`
+**Browser**: `http://localhost:8080/api/v1/swagger-ui.html`
 
 ### 3. Get JWT Token
 ```bash
 # Login as regular user
-curl -X POST http://localhost:8080/auth/login \
+curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"testuser","password":"password"}'
 
 # Or login as admin
-curl -X POST http://localhost:8080/auth/login \
+curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin123"}'
 ```
@@ -32,7 +32,7 @@ curl -X POST http://localhost:8080/auth/login \
 TOKEN="<paste-token-here>"
 
 # Get account balance (USER or ADMIN)
-curl -X GET http://localhost:8080/accounts/1001/balance \
+curl -X GET http://localhost:8080/api/v1/accounts/1001/balance \
   -H "Authorization: Bearer $TOKEN"
 
 # Admin access - view any account (ADMIN only)
@@ -43,8 +43,8 @@ curl -X GET http://localhost:8080/api/v1/admin/accounts/1001 \
 ## 📚 Documentation
 
 ### API Documentation
-- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
-- **OpenAPI Spec**: `http://localhost:8080/v3/api-docs`
+- **Swagger UI**: `http://localhost:8080/api/v1/swagger-ui.html`
+- **OpenAPI Spec**: `http://localhost:8080/api/v1/v3/api-docs`
 - **[API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** - Complete endpoint reference with examples
 - **[API_QUICK_REFERENCE.md](docs/API_QUICK_REFERENCE.md)** - Quick lookup for all endpoints
 
@@ -93,7 +93,7 @@ Two roles with clear separation of concerns:
 ### Authentication
 - **Type**: HTTP Bearer (JWT)
 - **Token Expiration**: 1 hour (configurable)
-- **Public Endpoints**: `/auth/login`, `/swagger-ui/**`, `/v3/api-docs/**`
+- **Public Endpoints**: `/api/v1/auth/login`, `/api/v1/swagger-ui/**`, `/api/v1/v3/api-docs/**`
 - **Protected Endpoints**: All other endpoints require JWT and appropriate role
 
 ### Bearer Token Usage
@@ -112,14 +112,15 @@ For detailed RBAC information, see [RBAC_IMPLEMENTATION.md](docs/RBAC_IMPLEMENTA
 ## 📋 API Endpoints
 
 ### Authentication
-- `POST /auth/login` - Get JWT token
+- `POST /api/v1/auth/login` - Get JWT token
 
 ### User Endpoints (Require USER or ADMIN role)
-- `GET /accounts/{accountId}` - Get account details
-- `GET /accounts/{accountId}/balance` - Get account balance
-- `GET /accounts/{accountId}/transactions` - Get transaction history
-- `POST /transfers` - Initiate money transfer
-- `GET /transfers/health` - Health check
+- `GET /api/v1/accounts` - List current user's accounts
+- `GET /api/v1/accounts/{accountId}` - Get account details
+- `GET /api/v1/accounts/{accountId}/balance` - Get account balance
+- `GET /api/v1/accounts/{accountId}/transactions` - Get transaction history
+- `POST /api/v1/transfers` - Initiate money transfer
+- `GET /api/v1/transfers/health` - Health check
 
 ### Admin Endpoints (ADMIN role only)
 - `GET /api/v1/admin/accounts/{accountId}` - View any account
@@ -137,8 +138,6 @@ For complete endpoint documentation, see [API_ENDPOINTS.md](docs/API_ENDPOINTS.m
 DB_URL=jdbc:mysql://localhost:3306/money_transfer_db
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
-
-# JWT
 JWT_SECRET=your-secret-key-min-32-characters
 JWT_EXPIRATION_MS=3600000
 
@@ -152,7 +151,6 @@ ADMIN_USER=admin
 ADMIN_PASSWORD=admin123
 ```
 
-### Application Properties
 File: `backend/src/main/resources/application.yml`
 
 ## ✅ Features
@@ -232,7 +230,7 @@ money-transfer-system/
 
 ### Step 1: Login and Get Token
 ```bash
-curl -X POST http://localhost:8080/auth/login \
+curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testuser",
@@ -242,16 +240,20 @@ curl -X POST http://localhost:8080/auth/login \
 
 ### Step 2: Use Token in Requests
 ```bash
-TOKEN=$(curl -s -X POST http://localhost:8080/auth/login \
+TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"testuser","password":"password"}' | jq -r '.token')
 
-# Call protected endpoint (USER can access own resources)
-curl -X GET http://localhost:8080/accounts/1001/balance \
+# List current user's accounts
+curl -X GET http://localhost:8080/api/v1/accounts \
+  -H "Authorization: Bearer $TOKEN" | jq
+
+# Get account balance (USER or ADMIN)
+curl -X GET http://localhost:8080/api/v1/accounts/1001/balance \
   -H "Authorization: Bearer $TOKEN" | jq
 
 # Admin access (ADMIN can view any account)
-ADMIN_TOKEN=$(curl -s -X POST http://localhost:8080/auth/login \
+ADMIN_TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin","password":"admin123"}' | jq -r '.token')
 
@@ -260,7 +262,7 @@ curl -X GET http://localhost:8080/api/v1/admin/accounts/1001 \
 ```
 
 ### Step 3: View in Swagger UI
-1. Open `http://localhost:8080/swagger-ui.html`
+1. Open `http://localhost:8080/api/v1/swagger-ui.html`
 2. Click 🔒 **"Authorize"** button
 3. Paste the token (without "Bearer " prefix)
 4. Try any endpoint
@@ -272,9 +274,9 @@ The API implements **per-user rate limiting** using Bucket4j (Token Bucket Algor
 ### Rate Limits
 | Endpoint | Limit | Window |
 |----------|-------|--------|
-| POST `/auth/login` | 5 attempts | Per minute |
-| POST `/transfers` | 10 transfers | Per minute |
-| GET `/accounts/**` | 60 reads | Per minute |
+| POST `/api/v1/auth/login` | 5 attempts | Per minute |
+| POST `/api/v1/transfers` | 10 transfers | Per minute |
+| GET `/api/v1/accounts/**` | 60 reads | Per minute |
 
 ### Rate Limited Response
 ```
@@ -344,6 +346,6 @@ This project is provided as-is for educational and development purposes.
 
 For issues or questions:
 1. Check the documentation files in `docs/`
-2. Review the Swagger UI at `http://localhost:8080/swagger-ui.html`
-3. Check the API spec at `http://localhost:8080/v3/api-docs`
+2. Review the Swagger UI at `http://localhost:8080/api/v1/swagger-ui.html`
+3. Check the API spec at `http://localhost:8080/api/v1/v3/api-docs`
 4. Run tests to verify functionality: `mvn test`

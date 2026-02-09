@@ -91,6 +91,19 @@ public class AccountService {
                 .map(this::toTransactionLogResponse)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Get all accounts for the current authenticated user.
+     * Returns only the user's own accounts (admins are treated as regular users here).
+     *
+     * @return list of AccountResponse
+     */
+    public List<AccountResponse> getCurrentUserAccounts() {
+        List<Account> accounts = ownershipService.getCurrentUserWithAccounts().getAccounts();
+        return accounts.stream()
+                .map(this::toAccountResponse)
+                .collect(Collectors.toList());
+    }
     
     // ========================================
     // ADMIN METHODS - No ownership checks

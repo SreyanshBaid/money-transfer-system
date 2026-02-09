@@ -149,6 +149,19 @@ public class UserService {
     }
 
     /**
+     * Gets all users in the system.
+     * Intended for ADMIN-only access at the controller layer.
+     *
+     * @return list of UserResponse objects
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::toUserResponse)
+                .toList();
+    }
+
+    /**
      * Creates an admin user (internal use only).
      * This should be called during application initialization or by system administrators.
      *

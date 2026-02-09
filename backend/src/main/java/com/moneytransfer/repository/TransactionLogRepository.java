@@ -16,7 +16,7 @@ import java.util.Optional;
  * No update operations - TransactionLog is append-only by design.
  */
 @Repository
-public interface TransactionLogRepository extends JpaRepository<TransactionLog, Long> {
+public interface TransactionLogRepository extends JpaRepository<TransactionLog, String> {
 
     /**
      * Find a transaction by its idempotency key.

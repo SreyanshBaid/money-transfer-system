@@ -25,13 +25,13 @@ import java.util.UUID;
 public class TransactionLog {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(length = 36, nullable = false, updatable = false)
+    private String id;
 
     @Column(nullable = false, name = "from_account_id")
     private Long fromAccountId;
 
-    @Column(nullable = false, name = "idempotency_key", length = 36)
+    @Column(nullable = false, name = "idempotency_key", length = 100)
     private String idempotencyKey;
 
     @Column(nullable = false)
@@ -60,6 +60,9 @@ public class TransactionLog {
 
     @PrePersist
     protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
@@ -70,7 +73,7 @@ public class TransactionLog {
     }
 
     // Getters (no setters - immutable after construction)
-    public Long getId() {
+    public String getId() {
         return id;
     }
 

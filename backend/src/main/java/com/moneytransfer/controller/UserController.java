@@ -25,7 +25,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Tag(name = "User Management", description = "APIs for user registration and profile management")
 public class UserController {
@@ -124,5 +124,20 @@ public class UserController {
             log.error("User profile retrieval failed: {}", e.getMessage());
             throw e;
         }
+    }
+
+    /**
+     * Get all users (ADMIN ONLY).
+     * Returns a list of all user profiles for administrative oversight.
+     *
+     * @return ResponseEntity with list of users
+     */
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "List all users (Admin Only)", description = "Retrieves all user profiles. Requires ADMIN role.")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<java.util.List<UserResponse>> getAllUsers() {
+        log.info("Admin requested list of all users");
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 }

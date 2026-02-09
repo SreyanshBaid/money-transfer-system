@@ -143,6 +143,19 @@ public class OwnershipService {
     }
 
     /**
+     * Gets the current authenticated user with accounts eagerly loaded.
+     *
+     * @return the current user with accounts
+     * @throws UnauthorizedAccessException if user is not authenticated or not found
+     */
+    @Transactional(readOnly = true)
+    public User getCurrentUserWithAccounts() {
+        String username = getCurrentUsername();
+        return userRepository.findByUsernameWithAccounts(username)
+                .orElseThrow(() -> new UnauthorizedAccessException("User not found: " + username));
+    }
+
+    /**
      * Gets the current authenticated username from Spring Security context.
      *
      * @return the username

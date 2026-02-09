@@ -1,10 +1,8 @@
--- V2__create_transaction_logs.sql
--- Transaction audit trail with idempotency guarantees
 
 CREATE TABLE IF NOT EXISTS transaction_logs (
-    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id VARCHAR(36) NOT NULL PRIMARY KEY,
     account_id BIGINT NOT NULL COMMENT 'Reference to the account',
-    idempotency_key VARCHAR(36) NOT NULL COMMENT 'UUID for exactly-once semantics - prevents duplicate processing',
+    idempotency_key VARCHAR(100) NOT NULL COMMENT 'UUID for exactly-once semantics - prevents duplicate processing',
     transaction_type VARCHAR(255) NOT NULL COMMENT 'Type of transaction (DEBIT, CREDIT, TRANSFER)',
     amount DECIMAL(19, 2) NOT NULL COMMENT 'Transaction amount',
     balance_before DECIMAL(19, 2) NOT NULL COMMENT 'Account balance before transaction',

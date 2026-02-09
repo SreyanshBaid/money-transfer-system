@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 public class TransactionLogResponse {
 
-    private Long id;
+    private String id;
 
     private Long fromAccountId;
 

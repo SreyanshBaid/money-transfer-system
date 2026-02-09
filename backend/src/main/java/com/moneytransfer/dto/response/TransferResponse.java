@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 public class TransferResponse {
 
-    private Long transactionId;
+    private String transactionId;
 
     private Long sourceAccountId;
 

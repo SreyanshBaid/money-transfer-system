@@ -243,7 +243,25 @@ class TransferServiceTest {
         when(accountRepository.save(any(Account.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
         when(transactionLogRepository.save(any(TransactionLog.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
+                .thenAnswer(inv -> {
+                    TransactionLog log = inv.getArgument(0);
+                    if (log.getId() == null) {
+                        return TransactionLog.builder()
+                                .id(UUID.randomUUID().toString())
+                                .fromAccountId(log.getFromAccountId())
+                                .toAccountId(log.getToAccountId())
+                                .idempotencyKey(log.getIdempotencyKey())
+                                .transactionType(log.getTransactionType())
+                                .amount(log.getAmount())
+                                .balanceBefore(log.getBalanceBefore())
+                                .balanceAfter(log.getBalanceAfter())
+                                .status(log.getStatus())
+                                .description(log.getDescription())
+                                .createdAt(log.getCreatedAt())
+                                .build();
+                    }
+                    return log;
+                });
 
         String idempotencyKey = UUID.randomUUID().toString();
         TransferRequest request = TransferRequest.builder()
@@ -262,6 +280,8 @@ class TransferServiceTest {
                 .isNotNull()
                 .extracting("sourceAccountId", "destinationAccountId", "amount", "status")
                 .contains(1L, 2L, TRANSFER_AMOUNT, TransactionStatus.COMPLETED.name());
+        
+        assertThat(response.getTransactionId()).isNotNull().isInstanceOf(String.class);
 
         // Verify accounts were saved
         verify(accountRepository, times(2)).save(accountCaptor.capture());
@@ -279,7 +299,7 @@ class TransferServiceTest {
 
         // Simulate cached transaction
         TransactionLog cachedTxn = TransactionLog.builder()
-                .id(100L)
+                .id(idempotencyKey)
                 .fromAccountId(1L)
                 .toAccountId(2L)
                 .idempotencyKey(idempotencyKey)
@@ -305,7 +325,7 @@ class TransferServiceTest {
         assertThat(response)
                 .isNotNull()
                 .extracting("transactionId", "amount")
-                .contains(100L, TRANSFER_AMOUNT);
+                .contains(idempotencyKey, TRANSFER_AMOUNT);
 
         // Verify no account lookups (early return)
         verify(accountRepository, never()).findById(any());
@@ -403,7 +423,25 @@ class TransferServiceTest {
         when(accountRepository.save(any(Account.class)))
                 .thenAnswer(inv -> inv.getArgument(0));
         when(transactionLogRepository.save(any(TransactionLog.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
+                .thenAnswer(inv -> {
+                    TransactionLog log = inv.getArgument(0);
+                    if (log.getId() == null) {
+                        return TransactionLog.builder()
+                                .id(UUID.randomUUID().toString())
+                                .fromAccountId(log.getFromAccountId())
+                                .toAccountId(log.getToAccountId())
+                                .idempotencyKey(log.getIdempotencyKey())
+                                .transactionType(log.getTransactionType())
+                                .amount(log.getAmount())
+                                .balanceBefore(log.getBalanceBefore())
+                                .balanceAfter(log.getBalanceAfter())
+                                .status(log.getStatus())
+                                .description(log.getDescription())
+                                .createdAt(log.getCreatedAt())
+                                .build();
+                    }
+                    return log;
+                });
 
         TransferRequest request = TransferRequest.builder()
                 .sourceAccountId(1L)
@@ -448,7 +486,25 @@ class TransferServiceTest {
                 });
 
         when(transactionLogRepository.save(any(TransactionLog.class)))
-                .thenAnswer(inv -> inv.getArgument(0));
+                .thenAnswer(inv -> {
+                    TransactionLog log = inv.getArgument(0);
+                    if (log.getId() == null) {
+                        return TransactionLog.builder()
+                                .id(UUID.randomUUID().toString())
+                                .fromAccountId(log.getFromAccountId())
+                                .toAccountId(log.getToAccountId())
+                                .idempotencyKey(log.getIdempotencyKey())
+                                .transactionType(log.getTransactionType())
+                                .amount(log.getAmount())
+                                .balanceBefore(log.getBalanceBefore())
+                                .balanceAfter(log.getBalanceAfter())
+                                .status(log.getStatus())
+                                .description(log.getDescription())
+                                .createdAt(log.getCreatedAt())
+                                .build();
+                    }
+                    return log;
+                });
 
         TransferRequest request = TransferRequest.builder()
                 .sourceAccountId(1L)
@@ -493,12 +549,24 @@ class TransferServiceTest {
                 .thenAnswer(inv -> inv.getArgument(0));
         
         // Create a counter for generating unique IDs
-        final long[] idCounter = {100L};
         when(transactionLogRepository.save(any(TransactionLog.class)))
                 .thenAnswer(inv -> {
                     TransactionLog log = inv.getArgument(0);
-                    // Note: TransactionLog is immutable, so we return it as-is
-                    // In real tests with a database, JPA would assign the ID
+                    if (log.getId() == null) {
+                        return TransactionLog.builder()
+                                .id(UUID.randomUUID().toString())
+                                .fromAccountId(log.getFromAccountId())
+                                .toAccountId(log.getToAccountId())
+                                .idempotencyKey(log.getIdempotencyKey())
+                                .transactionType(log.getTransactionType())
+                                .amount(log.getAmount())
+                                .balanceBefore(log.getBalanceBefore())
+                                .balanceAfter(log.getBalanceAfter())
+                                .status(log.getStatus())
+                                .description(log.getDescription())
+                                .createdAt(log.getCreatedAt())
+                                .build();
+                    }
                     return log;
                 });
 
@@ -513,7 +581,7 @@ class TransferServiceTest {
 
         TransferResponse response1 = transferService.transfer(request1);
         assertThat(response1).isNotNull();
-        Long txn1Id = response1.getTransactionId();
+        String txn1Id = response1.getTransactionId();
 
         // Second transfer
         TransferRequest request2 = TransferRequest.builder()
@@ -526,7 +594,7 @@ class TransferServiceTest {
 
         TransferResponse response2 = transferService.transfer(request2);
         assertThat(response2).isNotNull();
-        Long txn2Id = response2.getTransactionId();
+        String txn2Id = response2.getTransactionId();
 
         // Both should complete successfully
         assertThat(response1.getAmount()).isEqualTo(TRANSFER_AMOUNT);

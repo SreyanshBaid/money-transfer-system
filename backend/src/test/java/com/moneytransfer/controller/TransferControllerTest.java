@@ -94,7 +94,7 @@ class TransferControllerTest {
                 .idempotencyKey("unique-key-123")
                 .build();
 
-        Long transactionId = 1L;
+        String transactionId = "550e8400-e29b-41d4-a716-446655440001";
         TransferResponse response = TransferResponse.builder()
                 .transactionId(transactionId)
                 .sourceAccountId(1L)
@@ -140,7 +140,7 @@ class TransferControllerTest {
                 .build();
 
         TransferResponse response = TransferResponse.builder()
-                .transactionId(2L)
+                .transactionId("550e8400-e29b-41d4-a716-446655440002")
                 .sourceAccountId(1L)
                 .destinationAccountId(2L)
                 .amount(new BigDecimal("999999.99"))
@@ -171,7 +171,7 @@ class TransferControllerTest {
                 .build();
 
         TransferResponse response = TransferResponse.builder()
-                .transactionId(3L)
+                .transactionId("550e8400-e29b-41d4-a716-446655440003")
                 .sourceAccountId(1L)
                 .destinationAccountId(2L)
                 .amount(new BigDecimal("50.00"))
@@ -295,7 +295,7 @@ class TransferControllerTest {
                 .build();
 
         TransferResponse response = TransferResponse.builder()
-                .transactionId(4L)
+                .transactionId("550e8400-e29b-41d4-a716-446655440004")
                 .sourceAccountId(1L)
                 .destinationAccountId(2L)
                 .amount(new BigDecimal("0.01"))
@@ -325,7 +325,7 @@ class TransferControllerTest {
                 .build();
 
         TransferResponse response = TransferResponse.builder()
-                .transactionId(5L)
+                .transactionId("550e8400-e29b-41d4-a716-446655440005")
                 .sourceAccountId(1L)
                 .destinationAccountId(1L)
                 .amount(new BigDecimal("100.00"))
@@ -355,7 +355,7 @@ class TransferControllerTest {
 
         LocalDateTime now = LocalDateTime.now();
         TransferResponse response = TransferResponse.builder()
-                .transactionId(6L)
+                .transactionId("550e8400-e29b-41d4-a716-446655440006")
                 .sourceAccountId(1L)
                 .destinationAccountId(2L)
                 .amount(new BigDecimal("100.00"))
@@ -385,7 +385,7 @@ class TransferControllerTest {
                 .build();
 
         TransferResponse response = TransferResponse.builder()
-                .transactionId(7L)
+                .transactionId("550e8400-e29b-41d4-a716-446655440007")
                 .sourceAccountId(1L)
                 .destinationAccountId(2L)
                 .amount(new BigDecimal("100.00"))

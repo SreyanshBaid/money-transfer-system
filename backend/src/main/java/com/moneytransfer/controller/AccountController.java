@@ -22,6 +22,7 @@ import java.util.List;
  * AccountController: Read-only APIs for account data with rate limiting.
  *
  * Exposes endpoints for:
+ * - GET /accounts: List current user's accounts
  * - GET /accounts/{accountId}: Account details
  * - GET /accounts/{accountId}/balance: Current balance
  * - GET /accounts/{accountId}/transactions: Transaction history
@@ -37,6 +38,28 @@ public class AccountController {
 
     private final AccountService accountService;
     private final RateLimitUtil rateLimitUtil;
+
+    /**
+     * Get all accounts for the current authenticated user.
+     *
+     * @return list of accounts for the current user
+     */
+    @GetMapping
+    @Operation(summary = "List my accounts", description = "Retrieve all accounts owned by the current user")
+    @ApiResponse(responseCode = "200", description = "Accounts retrieved")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    @ApiResponse(responseCode = "429", description = "Rate limit exceeded - max 60 reads per minute")
+    @SecurityRequirement(name = "Bearer")
+    public ResponseEntity<List<AccountResponse>> getMyAccounts() {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!rateLimitUtil.allowAccountRead(userId)) {
+            log.warn("Account read rate limit exceeded for user: {}", userId);
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
+        }
+
+        log.debug("Fetching accounts for user: {}", userId);
+        return ResponseEntity.ok(accountService.getCurrentUserAccounts());
+    }
 
     /**
      * Get account details by ID.
