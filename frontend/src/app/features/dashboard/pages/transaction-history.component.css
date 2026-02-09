@@ -1,0 +1,203 @@
+.history-container {
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+.history-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.btn-back {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.btn-back:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.history-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.alert {
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.alert-error {
+  background-color: #fff5f5;
+  color: #dc3545;
+  border: 1px solid #f5c2c7;
+}
+
+.empty-state {
+  background: white;
+  border-radius: 8px;
+  padding: 60px 20px;
+  text-align: center;
+  color: #999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.table-wrapper {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transactions-table thead {
+  background: #f9f9f9;
+  border-bottom: 2px solid #eee;
+}
+
+.transactions-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.transactions-table tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s;
+}
+
+.transactions-table tbody tr:hover {
+  background-color: #f5f7fa;
+}
+
+.transactions-table td {
+  padding: 16px;
+  font-size: 14px;
+  color: #333;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #d1f0d1;
+  color: #155724;
+}
+
+.type-badge.type-debit {
+  background-color: #fff5f5;
+  color: #dc3545;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-success {
+  background-color: #d1f0d1;
+  color: #155724;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-failed {
+  background-color: #fff5f5;
+  color: #dc3545;
+}
+
+.amount {
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.amount-debit .amount {
+  color: #dc3545;
+}
+
+.amount-credit .amount {
+  color: #155724;
+}
+
+.description {
+  color: #666;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .history-header {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .history-header h1 {
+    font-size: 20px;
+  }
+
+  .transactions-table {
+    font-size: 12px;
+  }
+
+  .transactions-table th,
+  .transactions-table td {
+    padding: 12px 8px;
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+  }
+}

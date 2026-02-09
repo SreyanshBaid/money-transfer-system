@@ -72,6 +72,10 @@ public class OwnershipService {
      */
     @Transactional(readOnly = true)
     public void validateTransferOwnership(Long fromAccountId, Long toAccountId) {
+        if (fromAccountId == null || toAccountId == null) {
+            throw new IllegalArgumentException("Account IDs cannot be null");
+        }
+        
         String username = getCurrentUsername();
         
         User user = userRepository.findByUsername(username)

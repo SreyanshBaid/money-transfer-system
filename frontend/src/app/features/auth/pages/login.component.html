@@ -1,0 +1,65 @@
+<div class="login-container">
+  <div class="login-card">
+    <h1>Money Transfer System</h1>
+    <h2>Login</h2>
+
+    <!-- Error Alert -->
+    <div *ngIf="error" class="alert alert-error">
+      <strong>Error:</strong> {{ error }}
+    </div>
+
+    <!-- Login Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <!-- Username Field -->
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          formControlName="username"
+          type="text"
+          id="username"
+          class="form-control"
+          placeholder="Enter your username"
+          [class.is-invalid]="submitted && f['username'].errors"
+        />
+        <div *ngIf="submitted && f['username'].errors" class="invalid-feedback">
+          <div *ngIf="f['username'].errors['required']">Username is required</div>
+          <div *ngIf="f['username'].errors['minlength']">Username must be at least 3 characters</div>
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          formControlName="password"
+          type="password"
+          id="password"
+          class="form-control"
+          placeholder="Enter your password"
+          [class.is-invalid]="submitted && f['password'].errors"
+        />
+        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
+          <div *ngIf="f['password'].errors['required']">Password is required</div>
+          <div *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="loading"
+      >
+        <span *ngIf="!loading">Login</span>
+        <span *ngIf="loading">Login in progress...</span>
+      </button>
+    </form>
+
+    <!-- Demo Credentials Hint -->
+    <div class="demo-hint">
+      <p><strong>Demo Credentials:</strong></p>
+      <p>Username: <code>testuser</code></p>
+      <p>Password: <code>password123</code></p>
+    </div>
+  </div>
+</div>

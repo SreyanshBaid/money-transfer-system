@@ -1,0 +1,208 @@
+.transfer-container {
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.transfer-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  overflow: hidden;
+}
+
+.card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  text-align: center;
+}
+
+.card-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+}
+
+.card-header p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+form {
+  padding: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.amount-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 12px;
+  font-weight: 600;
+  color: #667eea;
+  pointer-events: none;
+}
+
+.amount-input-wrapper .form-control {
+  padding-left: 28px;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.form-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.btn {
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: #667eea;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #5568d3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e8e8e8;
+  border-color: #999;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.alert {
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.alert-error {
+  background-color: #fff5f5;
+  color: #dc3545;
+  border: 1px solid #f5c2c7;
+}
+
+.alert-success {
+  background-color: #d1f0d1;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.transfer-info {
+  background: #f9f9f9;
+  padding: 20px 30px 30px 30px;
+  border-top: 1px solid #eee;
+}
+
+.transfer-info h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.transfer-info ul {
+  margin: 0;
+  padding-left: 20px;
+  list-style-type: disc;
+  color: #666;
+  font-size: 13px;
+}
+
+.transfer-info li {
+  margin-bottom: 6px;
+}
+
+@media (max-width: 600px) {
+  .transfer-card {
+    border-radius: 0;
+  }
+
+  .card-header {
+    padding: 20px;
+  }
+
+  form {
+    padding: 20px;
+  }
+
+  .form-actions {
+    grid-template-columns: 1fr;
+  }
+}

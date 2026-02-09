@@ -1,0 +1,108 @@
+<div class="transfer-container">
+  <div class="transfer-card">
+    <!-- Header -->
+    <div class="card-header">
+      <h1>Send Money</h1>
+      <p>Transfer funds to another account</p>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="success" class="alert alert-success">
+      <strong>Success!</strong> {{ successMessage }}
+    </div>
+
+    <!-- Error Alert -->
+    <div *ngIf="error" class="alert alert-error">
+      <strong>Error:</strong> {{ error }}
+    </div>
+
+    <!-- Transfer Form -->
+    <form [formGroup]="transferForm" (ngSubmit)="onSubmit()">
+      <!-- To Account ID Field -->
+      <div class="form-group">
+        <label for="toAccountId">Recipient Account ID</label>
+        <input
+          formControlName="toAccountId"
+          type="text"
+          id="toAccountId"
+          class="form-control"
+          placeholder="Enter recipient account ID"
+          [class.is-invalid]="submitted && f['toAccountId'].errors"
+        />
+        <div *ngIf="submitted && f['toAccountId'].errors" class="invalid-feedback">
+          <div *ngIf="f['toAccountId'].errors['required']">Account ID is required</div>
+        </div>
+      </div>
+
+      <!-- Amount Field -->
+      <div class="form-group">
+        <label for="amount">Amount</label>
+        <div class="amount-input-wrapper">
+          <span class="currency-symbol">$</span>
+          <input
+            formControlName="amount"
+            type="number"
+            id="amount"
+            class="form-control"
+            placeholder="0.00"
+            step="0.01"
+            [class.is-invalid]="submitted && f['amount'].errors"
+          />
+        </div>
+        <div *ngIf="submitted && f['amount'].errors" class="invalid-feedback">
+          <div *ngIf="f['amount'].errors['required']">Amount is required</div>
+          <div *ngIf="f['amount'].errors['min']">Amount must be greater than 0</div>
+        </div>
+      </div>
+
+      <!-- Description Field -->
+      <div class="form-group">
+        <label for="description">Description (Optional)</label>
+        <textarea
+          formControlName="description"
+          id="description"
+          class="form-control"
+          placeholder="Enter transfer description"
+          rows="3"
+          [class.is-invalid]="submitted && f['description'].errors"
+        ></textarea>
+        <div *ngIf="submitted && f['description'].errors" class="invalid-feedback">
+          <div *ngIf="f['description'].errors['maxlength']">
+            Description cannot exceed 255 characters
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="loading"
+        >
+          <span *ngIf="!loading">Send Money</span>
+          <span *ngIf="loading">Processing...</span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="onCancel()"
+          [disabled]="loading"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+
+    <!-- Information -->
+    <div class="transfer-info">
+      <h3>Transfer Information</h3>
+      <ul>
+        <li>Transfers are processed instantly</li>
+        <li>Your account must have sufficient balance</li>
+        <li>Each transfer is secured with encryption</li>
+        <li>You can track all transfers in your history</li>
+      </ul>
+    </div>
+  </div>
+</div>

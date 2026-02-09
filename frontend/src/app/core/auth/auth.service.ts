@@ -1,0 +1,125 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, tap, switchMap } from 'rxjs/operators';
+import { TokenService } from './token.service';
+import { LoginRequest, LoginResponse, User, AuthState } from './auth.models';
+
+// AuthService handles login, logout, authentication status
+@Injectable({
+  providedIn: 'root'
+})
+export class AuthService {
+  private apiUrl = 'http://localhost:8080/api/auth';
+  
+  private authState = new BehaviorSubject<AuthState>({
+    isAuthenticated: false,
+    user: null,
+    token: null,
+    loading: false,
+    error: null
+  });
+
+  public auth$ = this.authState.asObservable();
+
+  constructor(
+    private http: HttpClient,
+    private tokenService: TokenService
+  ) {
+    this.loadStoredUser();
+  }
+
+  // Performs login with username and password
+  login(credentials: LoginRequest): Observable<LoginResponse> {
+    this.updateState({ loading: true, error: null });
+    
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
+      tap(response => {
+        this.tokenService.setToken(response.token);
+        this.updateState({
+          isAuthenticated: true,
+          user: response.user,
+          token: response.token,
+          loading: false,
+          error: null
+        });
+      }),
+      catchError(error => this.handleError(error))
+    );
+  }
+
+  // Clears authentication and logs out user
+  logout(): void {
+    this.tokenService.clearToken();
+    this.updateState({
+      isAuthenticated: false,
+      user: null,
+      token: null,
+      loading: false,
+      error: null
+    });
+  }
+
+  // Checks if user is currently authenticated
+  isAuthenticated(): Observable<boolean> {
+    return this.auth$.pipe(
+      switchMap(state => new Observable<boolean>(obs => {
+        obs.next(state.isAuthenticated);
+        obs.complete();
+      }))
+    );
+  }
+
+  // Gets current authentication token
+  getToken(): string | null {
+    return this.tokenService.getToken();
+  }
+
+  // Gets current user
+  getCurrentUser(): Observable<User | null> {
+    return this.auth$.pipe(
+      switchMap(state => new Observable<User | null>(obs => {
+        obs.next(state.user);
+        obs.complete();
+      }))
+    );
+  }
+
+  // Gets current auth state
+  getAuthState(): Observable<AuthState> {
+    return this.auth$;
+  }
+
+  // Private helper methods
+  private updateState(partial: Partial<AuthState>): void {
+    const current = this.authState.getValue();
+    this.authState.next({ ...current, ...partial });
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'An error occurred';
+    
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = error.error.message;
+    } else {
+      errorMessage = error.error?.message || error.statusText;
+    }
+
+    this.updateState({ 
+      loading: false, 
+      error: errorMessage,
+      isAuthenticated: false 
+    });
+
+    return throwError(() => new Error(errorMessage));
+  }
+
+  private loadStoredUser(): void {
+    const token = this.tokenService.getToken();
+    if (token) {
+      // Could decode JWT here to get user info
+      // For now, mark as authenticated
+      this.updateState({ isAuthenticated: true, token });
+    }
+  }
+}

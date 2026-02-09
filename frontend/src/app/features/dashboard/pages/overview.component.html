@@ -1,0 +1,70 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div>
+        <h1>Money Transfer System</h1>
+        <p *ngIf="username" class="welcome">Welcome, {{ username }}!</p>
+      </div>
+      <button class="btn btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="dashboard-main">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-spinner">
+      <p>Loading your account information...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="alert alert-error">
+      <strong>Error:</strong> {{ error }}
+    </div>
+
+    <!-- Content -->
+    <div *ngIf="!loading && !error && account" class="dashboard-content">
+      <!-- Welcome Banner -->
+      <div class="welcome-banner">
+        <h2>Account Overview</h2>
+        <p>Manage your money transfers securely and efficiently</p>
+      </div>
+
+      <!-- Balance Card -->
+      <div class="card balance-card">
+        <h3>Current Balance</h3>
+        <div class="balance-display">
+          <span class="currency">{{ account.currency }}</span>
+          <span class="amount">{{ account.balance | number: '1.2-2' }}</span>
+        </div>
+        <p class="last-updated">Last updated: {{ account.lastUpdated | date: 'short' }}</p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn btn-primary" (click)="navigateToTransfer()">
+          Send Money
+        </button>
+        <button class="btn btn-secondary" (click)="navigateToHistory()">
+          Transaction History
+        </button>
+      </div>
+
+      <!-- Quick Info -->
+      <div class="quick-info">
+        <div class="info-item">
+          <h4>Quick Transfer</h4>
+          <p>Send money to another account in seconds</p>
+        </div>
+        <div class="info-item">
+          <h4>Secure</h4>
+          <p>All transactions are protected with JWT authentication</p>
+        </div>
+        <div class="info-item">
+          <h4>Track History</h4>
+          <p>View all your transactions in one place</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
