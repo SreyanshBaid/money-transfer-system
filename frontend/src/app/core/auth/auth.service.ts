@@ -36,6 +36,7 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
         this.tokenService.setToken(response.token);
+        this.tokenService.setUser(response.user);
         this.updateState({
           isAuthenticated: true,
           user: response.user,
@@ -116,10 +117,10 @@ export class AuthService {
 
   private loadStoredUser(): void {
     const token = this.tokenService.getToken();
-    if (token) {
-      // Could decode JWT here to get user info
-      // For now, mark as authenticated
-      this.updateState({ isAuthenticated: true, token });
+    const user = this.tokenService.getUser();
+    if (token && user) {
+      // Restore both token and user from localStorage
+      this.updateState({ isAuthenticated: true, token, user });
     }
   }
 }

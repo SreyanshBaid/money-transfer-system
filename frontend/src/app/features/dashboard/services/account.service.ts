@@ -1,13 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of, timeout } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { Observable, forkJoin, of, timeout, throwError } from 'rxjs';
+import { map, switchMap, catchError } from 'rxjs/operators';
 
 export interface Account {
-  id: string;
+  id: string | number;
+  accountNumber: string;
+  accountHolder: string;
   balance: number;
-  currency: string;
-  lastUpdated: Date;
+  accountType: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  currency?: string;
+  lastUpdated?: Date;
 }
 
 // API response interface - matches actual backend response
@@ -41,12 +47,16 @@ export interface Transaction {
 
 // View model combining account details and balance
 export interface AccountCardViewModel {
-  id: string;
+  id: string | number;
   accountNumber: string;
+  accountHolder: string;
   balance: number;
-  currency: string;
-  lastUpdated: Date;
-  accountType?: string;
+  accountType: string;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  currency?: string;
+  lastUpdated?: Date;
 }
 
 // AccountService provides account balance and transactions
@@ -79,15 +89,18 @@ export class AccountService {
 
   // Gets transaction history by account ID
   getTransactions(accountId: number): Observable<Transaction[]> {
-    console.log(`Fetching transactions for account ${accountId}`);
+    console.log(`🔵 Fetching transactions for account ${accountId}`);
+    console.log(`🔵 URL: ${this.apiUrl}/${accountId}/transactions`);
+    
     return this.http.get<TransactionResponse[]>(
       `${this.apiUrl}/${accountId}/transactions`
     ).pipe(
       timeout(10000), // 10 second timeout
       map(transactions => {
-        console.log(`Received ${transactions?.length || 0} transactions`);
+        console.log(`✅ Received ${transactions?.length || 0} transactions`);
+        console.log('Raw response:', transactions);
         if (!transactions || !Array.isArray(transactions)) {
-          console.warn('Invalid transaction response format:', transactions);
+          console.warn('⚠️ Invalid transaction response format:', transactions);
           return [];
         }
         return transactions.map(tx => ({
@@ -102,6 +115,13 @@ export class AccountService {
           balanceBefore: tx.balanceBefore,
           balanceAfter: tx.balanceAfter
         }));
+      }),
+      catchError(error => {
+        console.error('❌ Error in getTransactions:', error);
+        console.error('❌ Error status:', error.status);
+        console.error('❌ Error statusText:', error.statusText);
+        console.error('❌ Error message:', error.message);
+        return throwError(() => error);
       })
     );
   }
@@ -132,11 +152,15 @@ export class AccountService {
             // Combine account data with their respective balances
             return accounts.map(account => ({
               id: account.id,
-              accountNumber: account.id,
+              accountNumber: account.accountNumber,
+              accountHolder: account.accountHolder,
               balance: balances[account.id] || account.balance,
-              currency: account.currency,
-              lastUpdated: account.lastUpdated,
-              accountType: 'Checking' // Default type, can be enhanced with API
+              accountType: account.accountType,
+              status: account.status,
+              createdAt: new Date(account.createdAt),
+              updatedAt: new Date(account.updatedAt),
+              currency: account.currency || 'USD',
+              lastUpdated: new Date(account.updatedAt)
             } as AccountCardViewModel));
           })
         );
@@ -167,11 +191,15 @@ export class AccountService {
           map(accountsWithBalances => 
             accountsWithBalances.map(account => ({
               id: account.id,
-              accountNumber: account.id,
+              accountNumber: account.accountNumber,
+              accountHolder: account.accountHolder,
               balance: account.balance,
-              currency: account.currency,
-              lastUpdated: account.lastUpdated,
-              accountType: 'Checking'
+              accountType: account.accountType,
+              status: account.status,
+              createdAt: new Date(account.createdAt),
+              updatedAt: new Date(account.updatedAt),
+              currency: account.currency || 'USD',
+              lastUpdated: new Date(account.updatedAt)
             } as AccountCardViewModel))
           )
         );

@@ -29,6 +29,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
   errorSubject$ = new BehaviorSubject<string | null>(null);
   error$ = this.errorSubject$.asObservable();
 
+  // Profile dropdown state
+  showProfileDropdown = false;
+  selectedAccount: AccountCardViewModel | null = null;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -80,6 +84,15 @@ export class OverviewComponent implements OnInit, OnDestroy {
         console.error('Error loading accounts:', err);
       }
     });
+
+    // Close profile dropdown when clicking outside
+    if (typeof document !== 'undefined') {
+      document.addEventListener('click', () => {
+        if (this.showProfileDropdown) {
+          this.showProfileDropdown = false;
+        }
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -103,5 +116,30 @@ export class OverviewComponent implements OnInit, OnDestroy {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  // Toggle profile dropdown
+  toggleProfileDropdown(): void {
+    this.showProfileDropdown = !this.showProfileDropdown;
+  }
+
+  // Get user initials for avatar
+  getUserInitials(user: User): string {
+    if (!user || !user.username) return '?';
+    const names = user.username.split(' ');
+    if (names.length >= 2) {
+      return (names[0][0] + names[1][0]).toUpperCase();
+    }
+    return user.username.substring(0, 2).toUpperCase();
+  }
+
+  // View account details
+  viewAccountDetails(account: AccountCardViewModel): void {
+    this.selectedAccount = account;
+  }
+
+  // Close account details modal
+  closeAccountDetails(): void {
+    this.selectedAccount = null;
   }
 }

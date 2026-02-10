@@ -30,22 +30,30 @@
       <table class="transactions-table">
         <thead>
           <tr>
-            <th>Date</th>
+            <th>Date & Time</th>
             <th>Type</th>
+            <th>From Account</th>
+            <th>To Account</th>
             <th>Amount</th>
+            <th>Balance Before</th>
+            <th>Balance After</th>
             <th>Description</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let transaction of transactions" [class]="getAmountClass(transaction.type)">
-            <td>{{ transaction.date | date:'short' }}</td>
+            <td class="date-cell">{{ transaction.date | date:'MMM d, y, h:mm a' }}</td>
             <td>
-              <span class="type-badge" [class.type-debit]="transaction.type === 'DEBIT'">
+              <span class="type-badge" [class.type-debit]="transaction.type === 'DEBIT'" [class.type-credit]="transaction.type === 'CREDIT'">
                 {{ transaction.type }}
               </span>
             </td>
+            <td class="account-cell">{{ transaction.fromAccountId || '-' }}</td>
+            <td class="account-cell">{{ transaction.toAccountId || '-' }}</td>
             <td class="amount">{{ transaction.amount | currency }}</td>
+            <td class="balance-cell">{{ transaction.balanceBefore | currency }}</td>
+            <td class="balance-cell">{{ transaction.balanceAfter | currency }}</td>
             <td class="description">{{ transaction.description }}</td>
             <td>
               <span class="status-badge" [class]="getStatusClass(transaction.status)">

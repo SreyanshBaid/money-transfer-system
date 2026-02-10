@@ -2,6 +2,40 @@
   <!-- Header -->
   <header class="dashboard-header">
     <div class="header-content">
+      <!-- Profile Avatar with Dropdown -->
+      <div class="profile-section">
+        <div class="profile-avatar" (click)="toggleProfileDropdown()" title="View profile">
+          <div class="avatar-circle">
+            <span class="avatar-initials" *ngIf="user$ | async as user">{{ getUserInitials(user) }}</span>
+          </div>
+        </div>
+        
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" *ngIf="showProfileDropdown" (click)="$event.stopPropagation()">
+          <div class="profile-dropdown-header">
+            <div class="avatar-circle-large">
+              <span class="avatar-initials-large" *ngIf="user$ | async as user">{{ getUserInitials(user) }}</span>
+            </div>
+            <div class="profile-info" *ngIf="user$ | async as user">
+              <h3>{{ user.username }}</h3>
+              <p class="user-email">{{ user.email }}</p>
+            </div>
+          </div>
+          <div class="profile-dropdown-body" *ngIf="user$ | async as user">
+            <div class="profile-detail-item">
+              <span class="label">User ID:</span>
+              <span class="value">{{ user.id }}</span>
+            </div>
+            <div class="profile-detail-item">
+              <span class="label">Roles:</span>
+              <span class="value">
+                <span class="role-badge" *ngFor="let role of user.roles">{{ role }}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <div>
         <h1>Money Transfer System</h1>
         <p *ngIf="user$ | async as user" class="welcome">Welcome, {{ user.username }}!</p>
@@ -46,11 +80,21 @@
             <!-- Account Card for Each Account -->
             <div *ngFor="let account of accounts; trackBy: trackByAccountId" class="account-card">
               <div class="card-header">
-                <h3 class="account-type">{{ account.accountType }}</h3>
-                <span class="account-id">{{ account.accountNumber }}</span>
+                <div class="card-header-content">
+                  <h3 class="account-type">{{ account.accountType }}</h3>
+                  <p class="account-holder">{{ account.accountHolder }}</p>
+                </div>
+                <span class="status-badge" [class.status-active]="account.status === 'ACTIVE'" [class.status-inactive]="account.status !== 'ACTIVE'">
+                  {{ account.status }}
+                </span>
               </div>
 
               <div class="card-body">
+                <div class="account-number-section">
+                  <p class="label">Account Number</p>
+                  <p class="account-num-value">{{ account.accountNumber }}</p>
+                </div>
+                
                 <!-- Balance Display -->
                 <div class="balance-section">
                   <p class="label">Current Balance</p>
@@ -62,7 +106,7 @@
 
                 <!-- Last Updated -->
                 <p class="last-updated">
-                  Updated: {{ account.lastUpdated | date: 'short' }}
+                  Updated: {{ account.updatedAt | date: 'short' }}
                 </p>
               </div>
 
@@ -79,6 +123,12 @@
                   (click)="navigateToHistory(account.id)"
                   title="View transaction history">
                   History
+                </button>
+                <button 
+                  class="btn btn-details" 
+                  (click)="viewAccountDetails(account)"
+                  title="View detailed account information">
+                  Details
                 </button>
               </div>
             </div>
@@ -123,5 +173,62 @@
       </div>
     </div>
     </ng-container>
+  </div>
+</div>
+
+<!-- Account Details Modal -->
+<div class="modal-overlay" *ngIf="selectedAccount" (click)="closeAccountDetails()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Account Details</h2>
+      <button class="modal-close" (click)="closeAccountDetails()" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-row">
+        <span class="detail-label">Account ID:</span>
+        <span class="detail-value">{{ selectedAccount.id }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Account Number:</span>
+        <span class="detail-value">{{ selectedAccount.accountNumber }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Account Holder:</span>
+        <span class="detail-value">{{ selectedAccount.accountHolder }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Account Type:</span>
+        <span class="detail-value">{{ selectedAccount.accountType }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Status:</span>
+        <span class="detail-value">
+          <span class="status-badge-inline" [class.status-active]="selectedAccount.status === 'ACTIVE'" [class.status-inactive]="selectedAccount.status !== 'ACTIVE'">
+            {{ selectedAccount.status }}
+          </span>
+        </span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Currency:</span>
+        <span class="detail-value">{{ selectedAccount.currency }}</span>
+      </div>
+      <div class="detail-row highlight">
+        <span class="detail-label">Current Balance:</span>
+        <span class="detail-value balance-amount">{{ selectedAccount.currency }} {{ selectedAccount.balance | number: '1.2-2' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Created At:</span>
+        <span class="detail-value">{{ selectedAccount.createdAt | date: 'medium' }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Last Updated:</span>
+        <span class="detail-value">{{ selectedAccount.updatedAt | date: 'medium' }}</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="navigateToTransfer(selectedAccount.id)">Send Money</button>
+      <button class="btn btn-secondary" (click)="navigateToHistory(selectedAccount.id)">View History</button>
+      <button class="btn btn-secondary" (click)="closeAccountDetails()">Close</button>
+    </div>
   </div>
 </div>

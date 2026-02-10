@@ -16,12 +16,21 @@ export class AuthInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const token = this.tokenService.getToken();
 
+    console.log('🔐 Auth Interceptor:', {
+      url: request.url,
+      hasToken: !!token,
+      token: token ? `${token.substring(0, 20)}...` : 'none'
+    });
+
     if (token) {
       request = request.clone({
         setHeaders: {
           Authorization: `Bearer ${token}`
         }
       });
+      console.log('✅ Token attached to request');
+    } else {
+      console.log('⚠️ No token found - request will be sent without authorization');
     }
 
     return next.handle(request);

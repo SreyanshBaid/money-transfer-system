@@ -69,7 +69,8 @@
 .table-wrapper {
   background: white;
   border-radius: 8px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   animation: fadeIn 0.3s ease-in;
 }
@@ -87,6 +88,7 @@
 
 .transactions-table {
   width: 100%;
+  min-width: 1200px;
   border-collapse: collapse;
 }
 
@@ -124,6 +126,9 @@
   border-radius: 4px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.type-badge.type-credit {
   background-color: #d1f0d1;
   color: #155724;
 }
@@ -169,8 +174,29 @@
   color: #155724;
 }
 
-.description {
-  color: #666;
+.description-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.date-cell {
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.account-cell {
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: #555;
+}
+
+.balance-cell {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: #555;
   max-width: 300px;
   overflow: hidden;
   text-overflow: ellipsis;
