@@ -72,3 +72,6 @@ app:
     user:
       username: ${APP_USER:app-user}
       password: ${APP_PASSWORD:app-password}
+  cors:
+    # Comma-separated list of allowed origins for frontend access
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://127.0.0.1:4200}

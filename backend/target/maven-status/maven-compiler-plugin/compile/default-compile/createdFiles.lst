@@ -22,6 +22,7 @@ com/moneytransfer/controller/UserController.class
 com/moneytransfer/dto/response/AccountBalanceResponse$AccountBalanceResponseBuilder.class
 com/moneytransfer/dto/response/TransferResponse.class
 com/moneytransfer/service/OwnershipService.class
+com/moneytransfer/dto/request/CreateAccountRequest$CreateAccountRequestBuilder.class
 com/moneytransfer/domain/status/AccountStatus.class
 com/moneytransfer/Application.class
 com/moneytransfer/domain/entity/Account.class
@@ -45,6 +46,7 @@ com/moneytransfer/service/AccountService.class
 com/moneytransfer/domain/entity/User$UserBuilder.class
 com/moneytransfer/config/OpenApiConfig.class
 com/moneytransfer/dto/request/UserRegistrationRequest$UserRegistrationRequestBuilder.class
+com/moneytransfer/dto/request/CreateAccountRequest.class
 com/moneytransfer/dto/response/AccountResponse.class
 com/moneytransfer/domain/exception/AccountNotFoundException.class
 com/moneytransfer/util/JwtUtil.class

@@ -57,10 +57,29 @@
   color: #666;
 }
 
+.spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .alert {
   padding: 16px;
   border-radius: 8px;
   margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .alert-error {
@@ -103,66 +122,196 @@
   font-size: 14px;
 }
 
-.card {
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  margin-bottom: 20px;
+/* Accounts Section */
+.accounts-section {
+  margin-bottom: 40px;
 }
 
-.balance-card h3 {
-  margin: 0 0 16px 0;
-  color: #333;
-  font-size: 16px;
+.empty-state {
+  background: white;
+  padding: 60px 20px;
+  border-radius: 8px;
+  text-align: center;
+  color: #999;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Scrollable Container for Accounts */
+.accounts-scroll-container {
+  margin-bottom: 30px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 10px 0;
+  
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+  
+  /* Hide scrollbar for modern browsers */
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+/* Scrollbar styling for Chrome/Safari */
+.accounts-scroll-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.accounts-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.accounts-scroll-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.accounts-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}
+
+.accounts-cards {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 10px;
+  padding-right: 20px;
+}
+
+/* Account Card */
+.account-card {
+  flex: 0 0 320px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-left: 4px solid #667eea;
+}
+
+.account-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+}
+
+.card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.account-type {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.account-id {
+  font-size: 12px;
+  opacity: 0.8;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.card-body {
+  padding: 20px;
+  flex: 1;
+}
+
+.balance-section {
+  margin-bottom: 16px;
+}
+
+.balance-section .label {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #999;
+  letter-spacing: 0.5px;
 }
 
 .balance-display {
   display: flex;
   align-items: baseline;
-  margin-bottom: 12px;
+  gap: 8px;
 }
 
 .balance-display .currency {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: #667eea;
-  margin-right: 8px;
 }
 
 .balance-display .amount {
-  font-size: 32px;
+  font-size: 28px;
   font-weight: bold;
   color: #333;
 }
 
 .last-updated {
   margin: 0;
-  font-size: 12px;
+  font-size: 11px;
   color: #999;
 }
 
-.action-buttons {
+.card-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 30px;
+  gap: 10px;
+  padding: 20px;
+  background: #f9f9f9;
+  border-top: 1px solid #eee;
 }
 
-@media (max-width: 600px) {
-  .action-buttons {
-    grid-template-columns: 1fr;
-  }
+/* Summary Stats */
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
 }
 
+.stat-item {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.stat-item h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+}
+
+.combined-balance {
+  color: #667eea;
+}
+
+/* Buttons */
 .btn {
-  padding: 12px 24px;
+  padding: 10px 16px;
   border: none;
   border-radius: 4px;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
+  white-space: nowrap;
 }
 
 .btn-primary {
@@ -187,28 +336,106 @@
   border-color: #999;
 }
 
-.quick-info {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-top: 40px;
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+  margin-left: 12px;
 }
 
-.info-item {
+/* Quick Actions */
+.quick-actions {
   background: white;
-  padding: 20px;
+  padding: 30px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.info-item h4 {
+.quick-actions h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.action-item {
+  padding: 20px;
+  border-radius: 8px;
+  background: #f9f9f9;
+  text-align: center;
+}
+
+.action-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.action-item h4 {
   margin: 0 0 8px 0;
-  color: #667eea;
+  color: #333;
   font-size: 16px;
 }
 
-.info-item p {
+.action-item p {
   margin: 0;
   color: #666;
   font-size: 14px;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .dashboard-header h1 {
+    font-size: 24px;
+  }
+
+  .account-card {
+    flex: 0 0 280px;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-main {
+    padding: 12px;
+  }
+
+  .welcome-banner {
+    padding: 20px;
+  }
+
+  .accounts-cards {
+    gap: 12px;
+    padding-right: 12px;
+  }
+
+  .account-card {
+    flex: 0 0 calc(100vw - 44px);
+  }
+
+  .card-actions {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+

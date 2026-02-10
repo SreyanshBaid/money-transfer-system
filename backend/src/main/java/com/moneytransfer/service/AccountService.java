@@ -2,21 +2,25 @@ package com.moneytransfer.service;
 
 import com.moneytransfer.domain.entity.Account;
 import com.moneytransfer.domain.entity.TransactionLog;
+import com.moneytransfer.domain.entity.User;
 import com.moneytransfer.domain.exception.AccountNotFoundException;
+import com.moneytransfer.dto.request.CreateAccountRequest;
 import com.moneytransfer.dto.response.AccountBalanceResponse;
 import com.moneytransfer.dto.response.AccountResponse;
 import com.moneytransfer.dto.response.TransactionLogResponse;
 import com.moneytransfer.repository.AccountRepository;
 import com.moneytransfer.repository.TransactionLogRepository;
+import com.moneytransfer.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * AccountService: Read-only operations for account data.
+ * AccountService: Account data operations including read and write functionality.
  * 
  * Methods for USER role:
  * - Regular methods perform ownership checks
@@ -26,6 +30,12 @@ import java.util.stream.Collectors;
  * - Admin methods bypass ownership checks
  * - Admins can access any account data
  * - Named with "Admin" suffix for clarity
+ * 
+ * Account Ownership:
+ * - When creating an account, it's automatically owned by the authenticated user
+ * - Uses User.addAccount() to maintain bidirectional one-to-many relationship
+ * - User.accounts (One-to-Many) <- Account.owner (Many-to-One)
+ * - When loading user accounts, use findByUsernameWithAccounts() for eager loading
  */
 @Slf4j
 @Service
@@ -35,6 +45,7 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final TransactionLogRepository transactionLogRepository;
     private final OwnershipService ownershipService;
+    private final UserRepository userRepository;
 
     /**
      * Get account details by ID.
@@ -103,6 +114,54 @@ public class AccountService {
         return accounts.stream()
                 .map(this::toAccountResponse)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Create a new account for the current authenticated user.
+     * The account will automatically be owned by the authenticated user.
+     * 
+     * The account is linked to the user through the bidirectional one-to-many relationship:
+     * User.accounts (one-to-many) <- Account.owner (many-to-one)
+     *
+     * @param request the account creation request
+     * @return AccountResponse with created account details
+     * @throws IllegalArgumentException if account number already exists
+     */
+    @Transactional
+    public AccountResponse createAccountForCurrentUser(CreateAccountRequest request) {
+        log.info("Creating new account for current user");
+
+        // Check if account number already exists
+        if (accountRepository.existsByAccountNumber(request.getAccountNumber())) {
+            log.warn("Account creation failed: Account number already exists: {}", request.getAccountNumber());
+            throw new IllegalArgumentException("Account number already exists: " + request.getAccountNumber());
+        }
+
+        // Get current authenticated user with their accounts
+        User currentUser = ownershipService.getCurrentUserWithAccounts();
+
+        // Create new account
+        Account newAccount = Account.builder()
+                .accountNumber(request.getAccountNumber())
+                .accountHolder(request.getAccountHolder())
+                .balance(request.getBalance())
+                .accountType(request.getAccountType())
+                .status(request.getStatus())
+                .build();
+
+        // Add account to user - this sets both sides of the bidirectional relationship
+        // User.addAccount() calls:
+        //   1. accounts.add(account)
+        //   2. account.setOwner(this)
+        currentUser.addAccount(newAccount);
+
+        // Save user - cascade will persist the account and set user_id foreign key
+        userRepository.save(currentUser);
+
+        log.info("Successfully created account {} for user: {}", 
+                newAccount.getAccountNumber(), currentUser.getUsername());
+
+        return toAccountResponse(newAccount);
     }
     
     // ========================================

@@ -4,7 +4,7 @@
     <div class="header-content">
       <div>
         <h1>Money Transfer System</h1>
-        <p *ngIf="username" class="welcome">Welcome, {{ username }}!</p>
+        <p *ngIf="user$ | async as user" class="welcome">Welcome, {{ user.username }}!</p>
       </div>
       <button class="btn btn-logout" (click)="logout()">Logout</button>
     </div>
@@ -13,58 +13,115 @@
   <!-- Main Content -->
   <div class="dashboard-main">
     <!-- Loading State -->
-    <div *ngIf="loading" class="loading-spinner">
+    <div *ngIf="isLoading$ | async" class="loading-spinner">
+      <div class="spinner"></div>
       <p>Loading your account information...</p>
     </div>
 
     <!-- Error State -->
-    <div *ngIf="error && !loading" class="alert alert-error">
+    <div *ngIf="(error$ | async) as error" class="alert alert-error">
       <strong>Error:</strong> {{ error }}
+      <button class="btn btn-small" (click)="ngOnInit()">Retry</button>
     </div>
 
     <!-- Content -->
-    <div *ngIf="!loading && !error && account" class="dashboard-content">
+    <ng-container *ngIf="(isLoading$ | async) === false && !(error$ | async) && (accounts$ | async) as accounts">
+      <div class="dashboard-content">
       <!-- Welcome Banner -->
       <div class="welcome-banner">
-        <h2>Account Overview</h2>
-        <p>Manage your money transfers securely and efficiently</p>
+        <h2>Your Accounts</h2>
+        <p>Manage your accounts and money transfers securely</p>
       </div>
 
-      <!-- Balance Card -->
-      <div class="card balance-card">
-        <h3>Current Balance</h3>
-        <div class="balance-display">
-          <span class="currency">{{ account.currency }}</span>
-          <span class="amount">{{ account.balance | number: '1.2-2' }}</span>
+      <!-- Accounts Container -->
+      <div class="accounts-section">
+        <!-- Empty State -->
+        <div *ngIf="accounts.length === 0" class="empty-state">
+          <p>No accounts found. Please create an account to get started.</p>
         </div>
-        <p class="last-updated">Last updated: {{ account.lastUpdated | date: 'short' }}</p>
+
+        <!-- Accounts Cards - Horizontal Scrollable -->
+        <div *ngIf="accounts.length > 0" class="accounts-scroll-container">
+          <div class="accounts-cards">
+            <!-- Account Card for Each Account -->
+            <div *ngFor="let account of accounts; trackBy: trackByAccountId" class="account-card">
+              <div class="card-header">
+                <h3 class="account-type">{{ account.accountType }}</h3>
+                <span class="account-id">{{ account.accountNumber }}</span>
+              </div>
+
+              <div class="card-body">
+                <!-- Balance Display -->
+                <div class="balance-section">
+                  <p class="label">Current Balance</p>
+                  <div class="balance-display">
+                    <span class="currency">{{ account.currency }}</span>
+                    <span class="amount">{{ account.balance | number: '1.2-2' }}</span>
+                  </div>
+                </div>
+
+                <!-- Last Updated -->
+                <p class="last-updated">
+                  Updated: {{ account.lastUpdated | date: 'short' }}
+                </p>
+              </div>
+
+              <!-- Card Actions -->
+              <div class="card-actions">
+                <button 
+                  class="btn btn-primary" 
+                  (click)="navigateToTransfer(account.id)"
+                  title="Send money from this account">
+                  Send Money
+                </button>
+                <button 
+                  class="btn btn-secondary" 
+                  (click)="navigateToHistory(account.id)"
+                  title="View transaction history">
+                  History
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div *ngIf="accounts.length > 0" class="summary-stats">
+          <div class="stat-item">
+            <h4>Total Accounts</h4>
+            <p class="stat-value">{{ accounts.length }}</p>
+          </div>
+          <div class="stat-item">
+            <h4>Combined Balance</h4>
+            <p class="stat-value combined-balance">
+              ${{ (accounts | combineBalance) | number: '1.2-2' }}
+            </p>
+          </div>
+        </div>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="action-buttons">
-        <button class="btn btn-primary" (click)="navigateToTransfer()">
-          Send Money
-        </button>
-        <button class="btn btn-secondary" (click)="navigateToHistory()">
-          Transaction History
-        </button>
-      </div>
-
-      <!-- Quick Info -->
-      <div class="quick-info">
-        <div class="info-item">
-          <h4>Quick Transfer</h4>
-          <p>Send money to another account in seconds</p>
-        </div>
-        <div class="info-item">
-          <h4>Secure</h4>
-          <p>All transactions are protected with JWT authentication</p>
-        </div>
-        <div class="info-item">
-          <h4>Track History</h4>
-          <p>View all your transactions in one place</p>
+      <!-- Quick Actions Section -->
+      <div class="quick-actions">
+        <h3>Quick Actions</h3>
+        <div class="actions-grid">
+          <div class="action-item">
+            <div class="action-icon">💳</div>
+            <h4>Quick Transfer</h4>
+            <p>Send money to another account in seconds</p>
+          </div>
+          <div class="action-item">
+            <div class="action-icon">🔒</div>
+            <h4>Secure</h4>
+            <p>All transactions are protected with JWT authentication</p>
+          </div>
+          <div class="action-item">
+            <div class="action-icon">📊</div>
+            <h4>Track History</h4>
+            <p>View all your transactions in one place</p>
+          </div>
         </div>
       </div>
     </div>
+    </ng-container>
   </div>
 </div>

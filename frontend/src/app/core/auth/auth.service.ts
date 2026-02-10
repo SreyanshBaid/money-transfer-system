@@ -10,7 +10,7 @@ import { LoginRequest, LoginResponse, User, AuthState } from './auth.models';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api/auth';
+  private apiUrl = 'http://localhost:8080/api/v1/auth';
   
   private authState = new BehaviorSubject<AuthState>({
     isAuthenticated: false,

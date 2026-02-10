@@ -34,6 +34,14 @@
   opacity: 0.9;
 }
 
+.card-header .source-account {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 12px;
+  opacity: 0.8;
+}
+
 form {
   padding: 30px;
 }

@@ -4,6 +4,7 @@
     <div class="card-header">
       <h1>Send Money</h1>
       <p>Transfer funds to another account</p>
+      <p *ngIf="sourceAccountId" class="source-account">From Account: {{ sourceAccountId }}</p>
     </div>
 
     <!-- Success Message -->
@@ -18,19 +19,19 @@
 
     <!-- Transfer Form -->
     <form [formGroup]="transferForm" (ngSubmit)="onSubmit()">
-      <!-- To Account ID Field -->
+      <!-- Recipient Account ID Field -->
       <div class="form-group">
-        <label for="toAccountId">Recipient Account ID</label>
+        <label for="destinationAccountId">Recipient Account ID</label>
         <input
-          formControlName="toAccountId"
+          formControlName="destinationAccountId"
           type="text"
-          id="toAccountId"
+          id="destinationAccountId"
           class="form-control"
           placeholder="Enter recipient account ID"
-          [class.is-invalid]="submitted && f['toAccountId'].errors"
+          [class.is-invalid]="submitted && f['destinationAccountId'].errors"
         />
-        <div *ngIf="submitted && f['toAccountId'].errors" class="invalid-feedback">
-          <div *ngIf="f['toAccountId'].errors['required']">Account ID is required</div>
+        <div *ngIf="submitted && f['destinationAccountId'].errors" class="invalid-feedback">
+          <div *ngIf="f['destinationAccountId'].errors['required']">Account ID is required</div>
         </div>
       </div>
 

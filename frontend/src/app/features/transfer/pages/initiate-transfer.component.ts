@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TransferService, TransferResponse } from '../services/transfer.service';
 
@@ -19,22 +19,28 @@ export class InitiateTransferComponent implements OnInit {
   error = '';
   success = false;
   successMessage = '';
+  sourceAccountId: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private transferService: TransferService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.initializeForm();
+    // Get source account ID from route query params
+    this.route.queryParams.subscribe(params => {
+      this.sourceAccountId = params['accountId'];
+      this.initializeForm();
+    });
   }
 
   private initializeForm(): void {
     this.transferForm = this.fb.group({
-      toAccountId: ['', [Validators.required, Validators.minLength(1)]],
+      destinationAccountId: ['', [Validators.required, Validators.minLength(1)]],
       amount: ['', [Validators.required, Validators.min(0.01)]],
-      description: ['', [Validators.maxLength(255)]]
+      description: ['', [Validators.maxLength(500)]]
     });
   }
 
@@ -47,18 +53,31 @@ export class InitiateTransferComponent implements OnInit {
     this.error = '';
     this.success = false;
 
+    if (!this.sourceAccountId) {
+      this.error = 'Source account ID is missing. Please go back and select an account.';
+      return;
+    }
+
     // Stop if form is invalid
     if (this.transferForm.invalid) {
       return;
     }
 
     this.loading = true;
-    const request = this.transferForm.value;
+    const formValue = this.transferForm.value;
+
+    const request = {
+      sourceAccountId: this.sourceAccountId,
+      destinationAccountId: formValue.destinationAccountId,
+      amount: Number(formValue.amount),
+      description: formValue.description || '',
+      idempotencyKey: this.transferService.generateIdempotencyKey()
+    };
 
     this.transferService.transfer(request).subscribe({
       next: (response: TransferResponse) => {
         this.success = true;
-        this.successMessage = `Transfer of $${request.amount} initiated successfully!`;
+        this.successMessage = `Transfer of $${request.amount.toFixed(2)} initiated successfully!`;
         this.loading = false;
         
         // Reset form
@@ -71,8 +90,20 @@ export class InitiateTransferComponent implements OnInit {
         }, 2000);
       },
       error: (err) => {
-        this.error = err.message || 'Transfer failed. Please try again.';
         this.loading = false;
+        console.error('Transfer error:', err);
+        
+        if (err.status === 400) {
+          this.error = err.error?.message || 'Invalid transfer details. Please check and try again.';
+        } else if (err.status === 401) {
+          this.error = 'You are not authorized to perform this transfer.';
+        } else if (err.status === 404) {
+          this.error = 'Source or destination account not found.';
+        } else if (err.status === 429) {
+          this.error = 'Rate limit exceeded. Please try again later.';
+        } else {
+          this.error = err.error?.message || 'Transfer failed. Please try again.';
+        }
       }
     });
   }

@@ -1,10 +1,12 @@
 package com.moneytransfer.controller;
 
+import com.moneytransfer.dto.request.CreateAccountRequest;
 import com.moneytransfer.dto.response.AccountBalanceResponse;
 import com.moneytransfer.dto.response.AccountResponse;
 import com.moneytransfer.dto.response.TransactionLogResponse;
 import com.moneytransfer.service.AccountService;
 import com.moneytransfer.util.RateLimitUtil;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -19,9 +21,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * AccountController: Read-only APIs for account data with rate limiting.
+ * AccountController: APIs for account data with rate limiting.
  *
  * Exposes endpoints for:
+ * - POST /accounts: Create a new account (owned by current user)
  * - GET /accounts: List current user's accounts
  * - GET /accounts/{accountId}: Account details
  * - GET /accounts/{accountId}/balance: Current balance
@@ -59,6 +62,27 @@ public class AccountController {
 
         log.debug("Fetching accounts for user: {}", userId);
         return ResponseEntity.ok(accountService.getCurrentUserAccounts());
+    }
+
+    /**
+     * Create a new account for the current authenticated user.
+     * The account will automatically be owned by the authenticated user.
+     *
+     * @param request the account creation request
+     * @return the created account details
+     */
+    @PostMapping
+    @Operation(summary = "Create a new account", description = "Create a new bank account owned by the current user")
+    @ApiResponse(responseCode = "201", description = "Account created successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid request data or account number already exists")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    @SecurityRequirement(name = "Bearer")
+    public ResponseEntity<AccountResponse> createAccount(@Valid @RequestBody CreateAccountRequest request) {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("Creating new account for user: {}", userId);
+        
+        AccountResponse createdAccount = accountService.createAccountForCurrentUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdAccount);
     }
 
     /**

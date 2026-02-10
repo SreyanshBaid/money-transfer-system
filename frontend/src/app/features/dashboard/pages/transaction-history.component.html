@@ -1,7 +1,10 @@
 <div class="history-container">
   <!-- Header -->
   <div class="history-header">
-    <h1>Transaction History</h1>
+    <div>
+      <h1>Transaction History</h1>
+      <p *ngIf="accountId" class="account-info">Account ID: {{ accountId }}</p>
+    </div>
     <button class="btn btn-back" (click)="goBack()">← Back to Dashboard</button>
   </div>
 
@@ -36,13 +39,13 @@
         </thead>
         <tbody>
           <tr *ngFor="let transaction of transactions" [class]="getAmountClass(transaction.type)">
-            <td>{{ transaction.date | dateFormat }}</td>
+            <td>{{ transaction.date | date:'short' }}</td>
             <td>
               <span class="type-badge" [class.type-debit]="transaction.type === 'DEBIT'">
                 {{ transaction.type }}
               </span>
             </td>
-            <td class="amount">{{ transaction.amount | currencyFormat }}</td>
+            <td class="amount">{{ transaction.amount | currency }}</td>
             <td class="description">{{ transaction.description }}</td>
             <td>
               <span class="status-badge" [class]="getStatusClass(transaction.status)">
