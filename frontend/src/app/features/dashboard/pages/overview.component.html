@@ -114,13 +114,13 @@
               <div class="card-actions">
                 <button 
                   class="btn btn-primary" 
-                  (click)="navigateToTransfer(account.id)"
+                  (click)="navigateToTransfer(account.id.toString())"
                   title="Send money from this account">
                   Send Money
                 </button>
                 <button 
                   class="btn btn-secondary" 
-                  (click)="navigateToHistory(account.id)"
+                  (click)="navigateToHistory(account.id.toString())"
                   title="View transaction history">
                   History
                 </button>
@@ -226,8 +226,8 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" (click)="navigateToTransfer(selectedAccount.id)">Send Money</button>
-      <button class="btn btn-secondary" (click)="navigateToHistory(selectedAccount.id)">View History</button>
+      <button class="btn btn-primary" (click)="navigateToTransfer(selectedAccount.id.toString())">Send Money</button>
+      <button class="btn btn-secondary" (click)="navigateToHistory(selectedAccount.id.toString())">View History</button>
       <button class="btn btn-secondary" (click)="closeAccountDetails()">Close</button>
     </div>
   </div>

@@ -5,7 +5,12 @@
       <h1>Transaction History</h1>
       <p *ngIf="accountId" class="account-info">Account ID: {{ accountId }}</p>
     </div>
-    <button class="btn btn-back" (click)="goBack()">← Back to Dashboard</button>
+    <div class="header-actions">
+      <button class="btn btn-refresh" (click)="refresh()" [disabled]="loading">
+        ⟳ Refresh
+      </button>
+      <button class="btn btn-back" (click)="goBack()">← Back to Dashboard</button>
+    </div>
   </div>
 
   <!-- Content -->
@@ -13,8 +18,9 @@
     <!-- Loading State -->
     <div *ngIf="loading" class="loading-spinner">
       <p>Loading transaction history...</p>
+      <!-- <input type="text"  size="20"> -->
     </div>
-
+<!-- <input type="text"  size="20" style="background-color:rgb(243, 243, 243)"> -->
     <!-- Error State -->
     <div *ngIf="error && !loading" class="alert alert-error">
       <strong>Error:</strong> {{ error }}
@@ -24,6 +30,7 @@
     <div *ngIf="!loading && !error && transactions.length === 0" class="empty-state">
       <p>No transactions yet</p>
     </div>
+    
 
     <!-- Transactions Table -->
     <div *ngIf="!loading && !error && transactions.length > 0" class="table-wrapper">

@@ -102,7 +102,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
 
   // TrackBy function for *ngFor optimization
   trackByAccountId(index: number, account: AccountCardViewModel): string {
-    return account.id;
+    return String(account.id);
   }
 
   navigateToTransfer(accountId: string): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AccountService, Transaction } from '../services/account.service';
@@ -11,7 +11,8 @@ import { takeUntil } from 'rxjs/operators';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './transaction-history.component.html',
-  styleUrls: ['./transaction-history.component.css']
+  styleUrls: ['./transaction-history.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionHistoryComponent implements OnInit, OnDestroy {
   transactions: Transaction[] = [];
@@ -23,7 +24,8 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
   constructor(
     private accountService: AccountService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +39,7 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
       if (!this.accountId) {
         this.error = 'No account selected. Please go back and select an account.';
         this.loading = false;
+        this.cdr.markForCheck();
         return;
       }
       this.loadTransactions();
@@ -48,6 +51,7 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
       this.error = 'Account ID is missing';
       this.loading = false;
       console.warn('Account ID is missing');
+      this.cdr.markForCheck();
       return;
     }
 
@@ -59,6 +63,7 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
       this.error = 'Invalid account ID format';
       this.loading = false;
       console.warn('Invalid account ID format:', this.accountId);
+      this.cdr.markForCheck();
       return;
     }
 
@@ -75,6 +80,7 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
           console.log('Loading flag set to:', this.loading);
           console.log('Transactions array length:', this.transactions.length);
           console.log('Error flag:', this.error);
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('❌ Failed to load transactions:', err);
@@ -97,15 +103,22 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
           } else {
             this.error = `Failed to load transaction history: ${err.message || err.statusText || 'Unknown error'}`;
           }
+          this.cdr.markForCheck();
         },
+        
         complete: () => {
           console.log('Transaction loading completed');
         }
+        // Ensure view updates after async operations
       });
   }
 
   goBack(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  refresh(): void {
+    this.loadTransactions();
   }
 
   ngOnDestroy(): void {
@@ -132,3 +145,4 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
     return type === 'DEBIT' ? 'amount-debit' : 'amount-credit';
   }
 }
+
