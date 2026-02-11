@@ -1,6 +1,11 @@
+# environment variables and backup files
 .env
-backend/logs/application.log
 .git-backup-*
-target/
+
+# backend logs and build artifacts
+backend/logs
+backend/target
+
+# frontend build artifacts and dependencies
 frontend/node_modules/
 frontend/build/
