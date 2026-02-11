@@ -9,3 +9,4 @@ backend/target
 # frontend build artifacts and dependencies
 frontend/node_modules/
 frontend/build/
+logs/application.log

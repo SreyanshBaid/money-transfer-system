@@ -1,21 +1,21 @@
-2026-02-05 11:00:48 [main] INFO  com.moneytransfer.Application - Starting Application using Java 17.0.18 with PID 37232 (/home/yash/Downloads/money-transfer-system/backend/target/classes started by yash in /home/yash/Downloads/money-transfer-system)
-2026-02-05 11:00:48 [main] DEBUG com.moneytransfer.Application - Running with Spring Boot v3.2.2, Spring v6.1.3
-2026-02-05 11:00:48 [main] INFO  com.moneytransfer.Application - No active profile set, falling back to 1 default profile: "default"
-2026-02-05 11:00:49 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-02-05 11:00:49 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 28 ms. Found 2 JPA repository interfaces.
-2026-02-05 11:00:50 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-02-05 11:00:50 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-02-05 11:00:50 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.18]
-2026-02-05 11:00:50 [main] INFO  o.a.c.c.C.[.[localhost].[/api/v1] - Initializing Spring embedded WebApplicationContext
-2026-02-05 11:00:50 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1618 ms
-2026-02-05 11:00:50 [main] DEBUG c.m.security.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
-2026-02-05 11:00:50 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2026-02-05 11:00:50 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flyway' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Failed to instantiate [org.flywaydb.core.Flyway]: Factory method 'flyway' threw exception with message: Driver com.mysql.cj.jdbc.Driver claims to not accept jdbcUrl, ${DB_URL}
-2026-02-05 11:00:50 [main] INFO  o.a.catalina.core.StandardService - Stopping service [Tomcat]
-2026-02-05 11:00:50 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+2026-02-11 10:54:09 [main] INFO  com.moneytransfer.Application - Starting Application using Java 17.0.18 with PID 333180 (/home/yash/money-transfer-system/backend/target/classes started by yash in /home/yash/money-transfer-system)
+2026-02-11 10:54:10 [main] DEBUG com.moneytransfer.Application - Running with Spring Boot v3.2.2, Spring v6.1.3
+2026-02-11 10:54:10 [main] INFO  com.moneytransfer.Application - No active profile set, falling back to 1 default profile: "default"
+2026-02-11 10:54:11 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-02-11 10:54:11 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 115 ms. Found 3 JPA repository interfaces.
+2026-02-11 10:54:12 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-02-11 10:54:12 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-02-11 10:54:12 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.18]
+2026-02-11 10:54:12 [main] INFO  o.a.c.c.C.[.[localhost].[/api/v1] - Initializing Spring embedded WebApplicationContext
+2026-02-11 10:54:12 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2836 ms
+2026-02-11 10:54:13 [main] DEBUG c.m.security.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2026-02-11 10:54:13 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-02-11 10:54:13 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flyway' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Failed to instantiate [org.flywaydb.core.Flyway]: Factory method 'flyway' threw exception with message: Driver com.mysql.cj.jdbc.Driver claims to not accept jdbcUrl, ${DB_URL}
+2026-02-11 10:54:13 [main] INFO  o.a.catalina.core.StandardService - Stopping service [Tomcat]
+2026-02-11 10:54:13 [main] INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
 
 Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-2026-02-05 11:00:50 [main] ERROR o.s.boot.SpringApplication - Application run failed
+2026-02-11 10:54:13 [main] ERROR o.s.boot.SpringApplication - Application run failed
 org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'flyway' defined in class path resource [org/springframework/boot/autoconfigure/flyway/FlywayAutoConfiguration$FlywayConfiguration.class]: Failed to instantiate [org.flywaydb.core.Flyway]: Factory method 'flyway' threw exception with message: Driver com.mysql.cj.jdbc.Driver claims to not accept jdbcUrl, ${DB_URL}
 	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:651)
 	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:639)
@@ -38,7 +38,7 @@ org.springframework.beans.factory.BeanCreationException: Error creating bean wit
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.moneytransfer.Application.main(Application.java:16)
+	at com.moneytransfer.Application.main(Application.java:18)
 Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.flywaydb.core.Flyway]: Factory method 'flyway' threw exception with message: Driver com.mysql.cj.jdbc.Driver claims to not accept jdbcUrl, ${DB_URL}
 	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:177)
 	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:647)

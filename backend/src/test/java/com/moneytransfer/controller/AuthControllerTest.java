@@ -1,8 +1,6 @@
 package com.moneytransfer.controller;
 
 import com.moneytransfer.config.JwtProperties;
-import com.moneytransfer.dto.request.LoginRequest;
-import com.moneytransfer.dto.response.LoginResponse;
 import com.moneytransfer.dto.response.LogoutResponse;
 import com.moneytransfer.service.TokenBlacklistService;
 import com.moneytransfer.util.JwtUtil;
@@ -17,16 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import java.util.Date;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 

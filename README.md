@@ -2,9 +2,40 @@
 
 A secure REST API for money transfers with JWT authentication, role-based access control, and professional API documentation.
 
-## 🚀 Quick Start
+## � New Contributors Start Here
+
+If you're new to this project, follow these steps:
+
+1. **Read [CONTRIBUTING.md](CONTRIBUTING.md)** - Complete setup guide for developers
+2. **Run the setup script**: `./setup.sh` - Automated setup (checks prerequisites, builds project)
+3. **Configure**: Copy `.env.example` to `.env` and add your database credentials
+4. **Start coding**: See [CONTRIBUTING.md](CONTRIBUTING.md) for workflow and guidelines
+
+### Quick Setup
+
+```bash
+# Clone and setup
+git clone https://github.com/tanishka223/money-transfer-system.git
+cd money-transfer-system
+
+# Run automated setup
+./setup.sh
+
+# Create database
+mysql -u root -p
+CREATE DATABASE money_transfer_db;
+
+# Start backend (terminal 1)
+cd backend && ./run-dev.sh
+
+# Start frontend (terminal 2)
+cd frontend && npm start
+```
+
+## �🚀 Quick Start
 
 ### 1. Start the Application
+
 ```bash
 cd backend
 mvn clean package -DskipTests
@@ -12,9 +43,11 @@ java -jar target/money-transfer-system-1.0.0.jar
 ```
 
 ### 2. Access Swagger UI
+
 **Browser**: `http://localhost:8080/api/v1/swagger-ui.html`
 
 ### 3. Get JWT Token
+
 ```bash
 # Login as regular user
 curl -X POST http://localhost:8080/api/v1/auth/login \
@@ -28,6 +61,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 ```
 
 ### 4. Call Protected API
+
 ```bash
 TOKEN="<paste-token-here>"
 
@@ -42,17 +76,28 @@ curl -X GET http://localhost:8080/api/v1/admin/accounts/1001 \
 
 ## 📚 Documentation
 
+### 🎯 New Developer Resources
+
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - **Start here!** Complete guide for new developers
+- **[SETUP_CHECKLIST.md](SETUP_CHECKLIST.md)** - Step-by-step setup checklist
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture with visual diagrams
+- **[COMMANDS.md](COMMANDS.md)** - Quick reference for common commands
+- **[docs/README.md](docs/README.md)** - Documentation index and navigation guide
+
 ### API Documentation
+
 - **Swagger UI**: `http://localhost:8080/api/v1/swagger-ui.html`
 - **OpenAPI Spec**: `http://localhost:8080/api/v1/v3/api-docs`
 - **[API_ENDPOINTS.md](docs/API_ENDPOINTS.md)** - Complete endpoint reference with examples
 - **[API_QUICK_REFERENCE.md](docs/API_QUICK_REFERENCE.md)** - Quick lookup for all endpoints
 
 ### Security & Architecture
+
 - **[RBAC_IMPLEMENTATION.md](docs/RBAC_IMPLEMENTATION.md)** - Role-Based Access Control (USER, ADMIN)
 - **[RATE_LIMITING_QUICK_REFERENCE.md](docs/RATE_LIMITING_QUICK_REFERENCE.md)** - Rate limiting details
 
 ### Project Documentation
+
 - **[SWAGGER_QUICK_REFERENCE.md](docs/SWAGGER_QUICK_REFERENCE.md)** - Quick reference for Swagger usage
 - **[SWAGGER_UI_GUIDE.md](docs/SWAGGER_UI_GUIDE.md)** - Detailed Swagger UI usage guide
 - **[SWAGGER_IMPLEMENTATION.md](docs/SWAGGER_IMPLEMENTATION.md)** - Complete implementation details
@@ -69,6 +114,7 @@ curl -X GET http://localhost:8080/api/v1/admin/accounts/1001 \
 Two roles with clear separation of concerns:
 
 #### USER Role (Default)
+
 - ✅ Initiate money transfers
 - ✅ View own account balance
 - ✅ View own transaction history
@@ -76,10 +122,12 @@ Two roles with clear separation of concerns:
 - ❌ Cannot bypass transaction limits
 
 **Test Credentials**:
+
 - Username: `testuser`
 - Password: `password`
 
 #### ADMIN Role (Operational)
+
 - ✅ View **any** account details
 - ✅ View **any** account balance
 - ✅ View **any** transaction history
@@ -87,21 +135,25 @@ Two roles with clear separation of concerns:
 - ❌ Cannot bypass transaction rules
 
 **Test Credentials**:
+
 - Username: `admin`
 - Password: `admin123`
 
 ### Authentication
+
 - **Type**: HTTP Bearer (JWT)
 - **Token Expiration**: 1 hour (configurable)
 - **Public Endpoints**: `/api/v1/auth/login`, `/api/v1/swagger-ui/**`, `/api/v1/v3/api-docs/**`
 - **Protected Endpoints**: All other endpoints require JWT and appropriate role
 
 ### Bearer Token Usage
+
 ```
 Authorization: Bearer <your-jwt-token>
 ```
 
 ### Security Principles
+
 1. **Roles define authority** - What you are allowed to do
 2. **Ownership defines access** - Which data you can access (future enhancement)
 3. **Defense-in-depth** - Multiple layers of security
@@ -112,9 +164,11 @@ For detailed RBAC information, see [RBAC_IMPLEMENTATION.md](docs/RBAC_IMPLEMENTA
 ## 📋 API Endpoints
 
 ### Authentication
+
 - `POST /api/v1/auth/login` - Get JWT token
 
 ### User Endpoints (Require USER or ADMIN role)
+
 - `GET /api/v1/accounts` - List current user's accounts
 - `GET /api/v1/accounts/{accountId}` - Get account details
 - `GET /api/v1/accounts/{accountId}/balance` - Get account balance
@@ -123,6 +177,7 @@ For detailed RBAC information, see [RBAC_IMPLEMENTATION.md](docs/RBAC_IMPLEMENTA
 - `GET /api/v1/transfers/health` - Health check
 
 ### Admin Endpoints (ADMIN role only)
+
 - `GET /api/v1/admin/accounts/{accountId}` - View any account
 - `GET /api/v1/admin/accounts/{accountId}/balance` - View any account balance
 - `GET /api/v1/admin/accounts/{accountId}/transactions` - View any account transactions
@@ -133,6 +188,7 @@ For complete endpoint documentation, see [API_ENDPOINTS.md](docs/API_ENDPOINTS.m
 ## 🛠️ Configuration
 
 ### Environment Variables
+
 ```bash
 # Database
 DB_URL=jdbc:mysql://localhost:3306/money_transfer_db
@@ -229,6 +285,7 @@ money-transfer-system/
 ## 🔄 Workflow Example
 
 ### Step 1: Login and Get Token
+
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
@@ -239,6 +296,7 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
 ```
 
 ### Step 2: Use Token in Requests
+
 ```bash
 TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
@@ -262,6 +320,7 @@ curl -X GET http://localhost:8080/api/v1/admin/accounts/1001 \
 ```
 
 ### Step 3: View in Swagger UI
+
 1. Open `http://localhost:8080/api/v1/swagger-ui.html`
 2. Click 🔒 **"Authorize"** button
 3. Paste the token (without "Bearer " prefix)
@@ -272,6 +331,7 @@ curl -X GET http://localhost:8080/api/v1/admin/accounts/1001 \
 The API implements **per-user rate limiting** using Bucket4j (Token Bucket Algorithm) to protect against abuse:
 
 ### Rate Limits
+
 | Endpoint | Limit | Window |
 |----------|-------|--------|
 | POST `/api/v1/auth/login` | 5 attempts | Per minute |
@@ -279,11 +339,13 @@ The API implements **per-user rate limiting** using Bucket4j (Token Bucket Algor
 | GET `/api/v1/accounts/**` | 60 reads | Per minute |
 
 ### Rate Limited Response
+
 ```
 HTTP 429 Too Many Requests
 ```
 
 **Transfer endpoint includes description:**
+
 ```json
 {
   "status": "RATE_LIMITED",
@@ -292,6 +354,7 @@ HTTP 429 Too Many Requests
 ```
 
 ### Testing Rate Limits
+
 ```bash
 # Make 6 rapid login attempts (5th will get 429)
 for i in {1..6}; do
@@ -306,17 +369,20 @@ done
 ## 🧪 Testing
 
 ### Run All Tests
+
 ```bash
 cd backend
 mvn test
 ```
 
 ### Run RBAC Tests Specifically
+
 ```bash
 mvn test -Dtest=SecurityRoleIntegrationTest
 ```
 
 ### Run with Coverage
+
 ```bash
 mvn test -D maven.test.failure.ignore=true
 ```
@@ -333,10 +399,27 @@ mvn test -D maven.test.failure.ignore=true
 
 ## 🤝 Contributing
 
-1. Create a feature branch
-2. Make your changes
-3. Ensure tests pass (`mvn test`)
-4. Submit a pull request
+**Want to contribute?** We welcome contributions!
+
+👉 **Read the complete guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
+
+The contributing guide includes:
+
+- ✅ Prerequisites and setup instructions
+- ✅ Project structure explanation
+- ✅ Development workflow
+- ✅ How to add new features
+- ✅ Testing guidelines
+- ✅ Code style standards
+- ✅ Troubleshooting common issues
+
+Quick start for contributors:
+
+1. Fork the repository
+2. Run `./setup.sh` for automated setup
+3. Create a feature branch: `git checkout -b feature/your-feature`
+4. Make changes and test: `mvn test` (backend) and `npm test` (frontend)
+5. Submit a pull request
 
 ## 📄 License
 
@@ -345,6 +428,7 @@ This project is provided as-is for educational and development purposes.
 ## 📞 Support
 
 For issues or questions:
+
 1. Check the documentation files in `docs/`
 2. Review the Swagger UI at `http://localhost:8080/api/v1/swagger-ui.html`
 3. Check the API spec at `http://localhost:8080/api/v1/v3/api-docs`
