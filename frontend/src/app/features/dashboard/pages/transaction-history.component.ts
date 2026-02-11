@@ -32,7 +32,7 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
     // Get account ID from route query params
     this.route.queryParams.pipe(
       takeUntil(this.destroy$)
-    ).subscribe(params => {
+    ).subscribe((params: any) => {
       this.accountId = params['accountId'];
       console.log('Account ID from params:', this.accountId);
       
@@ -73,7 +73,7 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
     this.accountService.getTransactions(accountIdNum)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (transactions) => {
+        next: (transactions: Transaction[]) => {
           console.log('✅ Transactions loaded successfully:', transactions);
           this.transactions = transactions;
           this.loading = false;
@@ -82,7 +82,7 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
           console.log('Error flag:', this.error);
           this.cdr.markForCheck();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('❌ Failed to load transactions:', err);
           console.error('Error object:', JSON.stringify(err, null, 2));
           console.error('Error status:', err.status);

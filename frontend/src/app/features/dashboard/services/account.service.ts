@@ -83,7 +83,7 @@ export class AccountService {
     return this.http
       .get<number | { balance: number }>(`${this.apiUrl}/${accountId}/balance`)
       .pipe(
-        map(response => (typeof response === 'number' ? response : response.balance))
+        map((response: any) => (typeof response === 'number' ? response : response.balance))
       );
   }
 
@@ -96,7 +96,7 @@ export class AccountService {
       `${this.apiUrl}/${accountId}/transactions`
     ).pipe(
       timeout(10000), // 10 second timeout
-      map(transactions => {
+      map((transactions: TransactionResponse[]) => {
         console.log(`✅ Received ${transactions?.length || 0} transactions`);
         console.log('Raw response:', transactions);
         if (!transactions || !Array.isArray(transactions)) {
@@ -116,7 +116,7 @@ export class AccountService {
           balanceAfter: tx.balanceAfter
         }));
       }),
-      catchError(error => {
+      catchError((error: any) => {
         console.error('❌ Error in getTransactions:', error);
         console.error('❌ Error status:', error.status);
         console.error('❌ Error statusText:', error.statusText);
@@ -130,11 +130,11 @@ export class AccountService {
   // Uses forkJoin to fetch all balances in parallel, avoiding nested subscriptions
   getAllAccountsWithBalances(): Observable<AccountCardViewModel[]> {
     return this.getAccounts().pipe(
-      switchMap(accounts => {
+      switchMap((accounts: Account[]) => {
         // Create an array of balance requests for all accounts
         const balanceRequests: Record<string, Observable<number>> = {};
         
-        accounts.forEach(account => {
+        accounts.forEach((account: Account) => {
           const accountId = Number(account.id);
           if (!Number.isNaN(accountId)) {
             balanceRequests[account.id] = this.getBalance(accountId);
@@ -148,9 +148,9 @@ export class AccountService {
 
         // Use forkJoin to fetch all balances in parallel
         return forkJoin(balanceRequests).pipe(
-          map(balances => {
+          map((balances: Record<string | number, number>) => {
             // Combine account data with their respective balances
-            return accounts.map(account => ({
+            return accounts.map((account: Account) => ({
               id: account.id,
               accountNumber: account.accountNumber,
               accountHolder: account.accountHolder,
@@ -172,15 +172,15 @@ export class AccountService {
   // This can be combined with user profile data in the component
   getAccountsWithDetails(): Observable<AccountCardViewModel[]> {
     return this.getAccounts().pipe(
-      switchMap(accounts => {
+      switchMap((accounts: Account[]) => {
         if (accounts.length === 0) {
           return of([] as AccountCardViewModel[]);
         }
 
         // Create balance requests for all accounts
-        const balanceObservables = accounts.map(account => 
+        const balanceObservables = accounts.map((account: Account) => 
           this.getBalance(Number(account.id)).pipe(
-            map(balance => ({
+            map((balance: number) => ({
               ...account,
               balance
             }))
@@ -188,8 +188,8 @@ export class AccountService {
         );
 
         return forkJoin(balanceObservables).pipe(
-          map(accountsWithBalances => 
-            accountsWithBalances.map(account => ({
+          map((accountsWithBalances: (Account & { balance: number })[]) => 
+            accountsWithBalances.map((account: Account & { balance: number }) => ({
               id: account.id,
               accountNumber: account.accountNumber,
               accountHolder: account.accountHolder,

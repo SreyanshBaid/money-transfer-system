@@ -30,7 +30,7 @@ export class InitiateTransferComponent implements OnInit {
 
   ngOnInit(): void {
     // Get source account ID from route query params
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params: any) => {
       this.sourceAccountId = params['accountId'];
       this.initializeForm();
     });
@@ -89,7 +89,7 @@ export class InitiateTransferComponent implements OnInit {
           this.router.navigate(['/dashboard']);
         }, 2000);
       },
-      error: (err) => {
+      error: (err: any) => {
         this.loading = false;
         console.error('Transfer error:', err);
         
