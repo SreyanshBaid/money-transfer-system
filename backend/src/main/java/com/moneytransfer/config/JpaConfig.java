@@ -8,7 +8,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * Enables Spring Data JPA repositories and entity auditing.
  */
 @Configuration
-@EnableJpaRepositories(basePackages = "com.moneytransfer.repository")
+@EnableJpaRepositories(basePackages = {
+    "com.moneytransfer.repository",
+    "com.moneytransfer.analytics.repository"
+})
 public class JpaConfig {
     // JPA configuration is primarily handled by application.yml
     // This class serves as an anchor point for future JPA customizations
