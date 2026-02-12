@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,4 +60,14 @@ public interface TransactionLogRepository extends JpaRepository<TransactionLog, 
      * @return true if this key was already processed, false otherwise
      */
     boolean existsByIdempotencyKey(String idempotencyKey);
+
+    /**
+     * Find transactions created after a specific timestamp.
+     * Used by analytics export service for incremental data export.
+     *
+     * @param watermark the timestamp to query from (exclusive)
+     * @return list of transactions created after the watermark, ordered by creation time ascending
+     */
+    @Query("SELECT t FROM TransactionLog t WHERE t.createdAt > :watermark ORDER BY t.createdAt ASC")
+    List<TransactionLog> findByCreatedAtGreaterThanOrderByCreatedAtAsc(@Param("watermark") LocalDateTime watermark);
 }

@@ -144,6 +144,13 @@
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Snowflake JDBC Driver for Analytics -->
+        <dependency>
+            <groupId>net.snowflake</groupId>
+            <artifactId>snowflake-jdbc</artifactId>
+            <version>3.14.4</version>
+        </dependency>
     </dependencies>
 
     <build>

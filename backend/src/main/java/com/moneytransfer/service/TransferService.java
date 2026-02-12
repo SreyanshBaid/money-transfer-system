@@ -3,6 +3,7 @@ package com.moneytransfer.service;
 import com.moneytransfer.domain.entity.Account;
 import com.moneytransfer.domain.entity.TransactionLog;
 import com.moneytransfer.domain.exception.AccountNotFoundException;
+import com.moneytransfer.domain.exception.AccountNotActiveException;
 import com.moneytransfer.domain.exception.DuplicateTransferException;
 import com.moneytransfer.domain.exception.InsufficientBalanceException;
 import com.moneytransfer.domain.status.TransactionStatus;
@@ -100,10 +101,7 @@ public class TransferService {
                     request.getDestinationAccountId(), txn);
         }
 
-        // Step 2: Validate transfer request
-        validateTransferRequest(request);
-
-        // Step 3: Load accounts
+        // Step 2: Load accounts (before validation so we can check if they exist and are active)
         Account sourceAccount = accountRepository.findById(request.getSourceAccountId())
                 .orElseThrow(() -> new AccountNotFoundException(
                         "Source account not found: " + request.getSourceAccountId()));
@@ -112,24 +110,28 @@ public class TransferService {
                 .orElseThrow(() -> new AccountNotFoundException(
                         "Destination account not found: " + request.getDestinationAccountId()));
 
-        // Step 4 & 5: Debit and credit (includes balance validation)
+        // Step 3: Validate transfer request with loaded accounts
+        validateTransferRequest(request, sourceAccount, destinationAccount);
+
+        // Step 4: Debit from source account (includes balance validation - TRX-400)
         BigDecimal balanceBeforeDebit = sourceAccount.getBalance();
         
         try {
             sourceAccount.debit(request.getAmount());
         } catch (IllegalStateException e) {
-            log.warn("Transfer failed due to source account issue - {}", e.getMessage());
+            log.warn("Debit failed - {}", e.getMessage());
             throw new InsufficientBalanceException(e.getMessage());
         }
 
         BigDecimal balanceAfterDebit = sourceAccount.getBalance();
         
+        // Step 5: Credit to destination account
         try {
             destinationAccount.credit(request.getAmount());
         } catch (IllegalStateException e) {
-            log.warn("Transfer failed due to destination account issue - {}", e.getMessage());
-            // This will trigger rollback due to @Transactional
-            throw new IllegalStateException("Transfer failed: " + e.getMessage());
+            log.warn("Credit failed - {}", e.getMessage());
+            // Destination account status was already validated, so this shouldn't happen
+            throw new AccountNotActiveException("Destination credit failed: " + e.getMessage());
         }
 
         // Step 6: Persist account changes
@@ -191,25 +193,47 @@ public class TransferService {
     }
 
     /**
-     * Validates the transfer request.
+     * Validates the transfer request against all transfer rules.
      * 
-     * Rules:
-     * - Source and destination must be different accounts
-     * - Amount must be positive
-     * - Both accounts must be active
+     * Rules enforced:
+     * 1. Accounts must be different (VAL-422)
+     * 2. Amount must be > 0 (VAL-422)
+     * 3. Source account must exist (ACC-404) - checked before calling method
+     * 4. Destination account must exist (ACC-404) - checked before calling method
+     * 5. Source account must be ACTIVE (ACC-403)
+     * 6. Destination account must be ACTIVE (ACC-403)
+     * 7. Source balance >= amount (TRX-400) - checked during debit()
+     * 8. Idempotency key must be unique (TRX-409) - checked before validation
+     * 9. Debit before credit - order maintained in transfer()
+     * 10. Log every transfer - done in transfer()
      * 
      * @param request Transfer request to validate
-     * @throws IllegalArgumentException if validation fails
+     * @param sourceAccount Source account (must already be loaded)
+     * @param destinationAccount Destination account (must already be loaded)
+     * @throws IllegalArgumentException if accounts are same or amount invalid (VAL-422)
+     * @throws AccountNotActiveException if either account is not active (ACC-403)
      */
-    private void validateTransferRequest(TransferRequest request) {
-        // Rule 1: Cannot transfer to self
+    private void validateTransferRequest(TransferRequest request, Account sourceAccount, Account destinationAccount) {
+        // Rule 1: Accounts must be different (VAL-422)
         if (request.getSourceAccountId().equals(request.getDestinationAccountId())) {
             throw new IllegalArgumentException("Cannot transfer to the same account");
         }
 
-        // Rule 2: Amount validation (additional check, DTO has @DecimalMin)
+        // Rule 6: Amount must be > 0 (VAL-422)
         if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Transfer amount must be greater than zero");
+        }
+
+        // Rule 4: Source account must be ACTIVE (ACC-403)
+        if (!sourceAccount.isActive()) {
+            throw new AccountNotActiveException(
+                    "Source account is not active. Status: " + sourceAccount.getStatus());
+        }
+
+        // Rule 5: Destination account must be ACTIVE (ACC-403)
+        if (!destinationAccount.isActive()) {
+            throw new AccountNotActiveException(
+                    "Destination account is not active. Status: " + destinationAccount.getStatus());
         }
 
         log.debug("Transfer request validation passed - Source: {}, Destination: {}, Amount: {}",

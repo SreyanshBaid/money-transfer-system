@@ -1,0 +1,14 @@
+# Test Configuration
+# Disables analytics export for integration tests
+
+analytics:
+  export:
+    enabled: false
+  snowflake:
+    url: jdbc:snowflake://localhost
+    username: test
+    password: test
+    database: test
+    schema: test
+    warehouse: test
+    stage: test

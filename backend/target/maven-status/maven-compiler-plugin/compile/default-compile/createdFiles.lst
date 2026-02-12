@@ -3,10 +3,13 @@ com/moneytransfer/dto/response/LogoutResponse$LogoutResponseBuilder.class
 com/moneytransfer/dto/response/TransferResponse$TransferResponseBuilder.class
 com/moneytransfer/util/RateLimitUtil.class
 com/moneytransfer/config/SecurityUserProperties.class
+com/moneytransfer/analytics/repository/AnalyticsExportStateRepository.class
 com/moneytransfer/domain/entity/User.class
 com/moneytransfer/config/WebConfig.class
 com/moneytransfer/domain/entity/Account$AccountBuilder.class
+com/moneytransfer/analytics/config/AnalyticsConfiguration.class
 com/moneytransfer/controller/TransferController.class
+com/moneytransfer/analytics/scheduler/AnalyticsExportJob.class
 com/moneytransfer/dto/response/ErrorResponse.class
 com/moneytransfer/dto/response/AccountResponse$AccountResponseBuilder.class
 com/moneytransfer/domain/exception/AccountNotActiveException.class
@@ -26,9 +29,11 @@ com/moneytransfer/dto/request/CreateAccountRequest$CreateAccountRequestBuilder.c
 com/moneytransfer/domain/status/AccountStatus.class
 com/moneytransfer/Application.class
 com/moneytransfer/domain/entity/Account.class
+com/moneytransfer/analytics/model/AnalyticsExportState$AnalyticsExportStateBuilder.class
 com/moneytransfer/repository/UserRepository.class
 com/moneytransfer/domain/entity/TransactionLog$TransactionLogBuilder.class
 com/moneytransfer/domain/exception/InsufficientBalanceException.class
+com/moneytransfer/analytics/client/SnowflakeClient.class
 com/moneytransfer/dto/request/ForgotPasswordRequest.class
 com/moneytransfer/domain/status/TransactionStatus.class
 com/moneytransfer/dto/response/TransactionLogResponse.class
@@ -51,12 +56,15 @@ com/moneytransfer/dto/response/AccountResponse.class
 com/moneytransfer/domain/exception/AccountNotFoundException.class
 com/moneytransfer/util/JwtUtil.class
 com/moneytransfer/repository/TransactionLogRepository.class
+com/moneytransfer/analytics/config/SnowflakeProperties.class
 com/moneytransfer/config/JpaConfig.class
 com/moneytransfer/dto/request/ResetPasswordRequest$ResetPasswordRequestBuilder.class
 com/moneytransfer/security/JwtAuthenticationFilter.class
 com/moneytransfer/config/JwtProperties.class
+com/moneytransfer/analytics/model/AnalyticsExportState.class
 com/moneytransfer/dto/request/ResetPasswordRequest.class
 com/moneytransfer/domain/exception/UnauthorizedAccessException.class
+com/moneytransfer/domain/exception/UserNotFoundException.class
 com/moneytransfer/dto/response/ErrorResponse$ErrorResponseBuilder.class
 com/moneytransfer/repository/AccountRepository.class
 com/moneytransfer/dto/request/LoginRequest.class
@@ -66,4 +74,5 @@ com/moneytransfer/config/SecurityConfig.class
 com/moneytransfer/dto/request/ForgotPasswordRequest$ForgotPasswordRequestBuilder.class
 com/moneytransfer/controller/AdminController.class
 com/moneytransfer/service/TokenBlacklistService.class
+com/moneytransfer/analytics/exporter/TransactionExportService.class
 com/moneytransfer/dto/request/TransferRequest$TransferRequestBuilder.class

@@ -75,3 +75,16 @@ app:
   cors:
     # Comma-separated list of allowed origins for frontend access
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200,http://127.0.0.1:4200}
+
+# Analytics Configuration
+analytics:
+  export:
+    enabled: ${ANALYTICS_EXPORT_ENABLED:false}
+  snowflake:
+    url: ${SNOWFLAKE_URL:jdbc:snowflake://your-account.snowflakecomputing.com}
+    username: ${SNOWFLAKE_USERNAME:your-username}
+    password: ${SNOWFLAKE_PASSWORD:your-password}
+    database: ${SNOWFLAKE_DATABASE:MONEY_TRANSFER_DB}
+    schema: ${SNOWFLAKE_SCHEMA:PUBLIC}
+    warehouse: ${SNOWFLAKE_WAREHOUSE:COMPUTE_WH}
+    stage: ${SNOWFLAKE_STAGE:TRANSACTION_STAGE}

@@ -5,6 +5,7 @@ import com.moneytransfer.domain.exception.AccountNotActiveException;
 import com.moneytransfer.domain.exception.InsufficientBalanceException;
 import com.moneytransfer.domain.exception.DuplicateTransferException;
 import com.moneytransfer.domain.exception.UnauthorizedAccessException;
+import com.moneytransfer.domain.exception.UserNotFoundException;
 import com.moneytransfer.dto.response.ErrorResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,6 +37,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.NOT_FOUND.value())
+                .code("ACC-404")
                 .message(ex.getMessage())
                 .error("Account Not Found")
                 .timestamp(LocalDateTime.now())
@@ -54,14 +56,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request) {
         
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
+                .status(HttpStatus.FORBIDDEN.value())
+                .code("ACC-403")
                 .message(ex.getMessage())
                 .error("Account Not Active")
                 .timestamp(LocalDateTime.now())
                 .path(request.getDescription(false).replace("uri=", ""))
                 .build();
         
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
     /**
@@ -74,6 +77,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
+                .code("TRX-400")
                 .message(ex.getMessage())
                 .error("Insufficient Balance")
                 .timestamp(LocalDateTime.now())
@@ -93,6 +97,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.CONFLICT.value())
+                .code("TRX-409")
                 .message(ex.getMessage())
                 .error("Duplicate Transfer")
                 .timestamp(LocalDateTime.now())
@@ -100,6 +105,26 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
         
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    /**
+     * Handles UserNotFoundException when a user with specified ID or username doesn't exist.
+     */
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(
+            UserNotFoundException ex,
+            WebRequest request) {
+        
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .code("USR-404")
+                .message(ex.getMessage())
+                .error("User Not Found")
+                .timestamp(LocalDateTime.now())
+                .path(request.getDescription(false).replace("uri=", ""))
+                .build();
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -131,6 +156,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
+                .code("VAL-422")
                 .message(ex.getMessage())
                 .error("Invalid Request")
                 .timestamp(LocalDateTime.now())
@@ -164,6 +190,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
+                .code("VAL-422")
                 .message(errorMessage.toString())
                 .error("Validation Error")
                 .timestamp(LocalDateTime.now())
@@ -183,6 +210,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .code("SYS-500")
                 .message("An unexpected error occurred: " + ex.getMessage())
                 .error("Internal Server Error")
                 .timestamp(LocalDateTime.now())

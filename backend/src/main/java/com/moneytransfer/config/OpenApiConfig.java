@@ -23,7 +23,7 @@ public class OpenApiConfig {
                         .version("1.0.0")
                         .contact(new Contact()
                                 .name("Money Transfer System")
-                                .url("https://github.com/tanishka223/money-transfer-system")))
+                                .url("https://github.com/yash-jain-1/money-transfer-system")))
                 .addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME))
                 .components(new Components()
                         .addSecuritySchemes(BEARER_SCHEME,

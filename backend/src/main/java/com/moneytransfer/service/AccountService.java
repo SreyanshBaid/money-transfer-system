@@ -4,6 +4,7 @@ import com.moneytransfer.domain.entity.Account;
 import com.moneytransfer.domain.entity.TransactionLog;
 import com.moneytransfer.domain.entity.User;
 import com.moneytransfer.domain.exception.AccountNotFoundException;
+import com.moneytransfer.domain.exception.UserNotFoundException;
 import com.moneytransfer.dto.request.CreateAccountRequest;
 import com.moneytransfer.dto.response.AccountBalanceResponse;
 import com.moneytransfer.dto.response.AccountResponse;
@@ -160,6 +161,45 @@ public class AccountService {
 
         log.info("Successfully created account {} for user: {}", 
                 newAccount.getAccountNumber(), currentUser.getUsername());
+
+        return toAccountResponse(newAccount);
+    }
+
+    /**
+     * [ADMIN] Create a new account for a specific user.
+     * Admins can attach an account to any user by user ID.
+     *
+     * @param userId the user ID to own the new account
+     * @param request the account creation request
+     * @return AccountResponse with created account details
+     * @throws IllegalArgumentException if account number already exists
+     * @throws UserNotFoundException if user is not found
+     */
+    @Transactional
+    public AccountResponse createAccountForUser(Long userId, CreateAccountRequest request) {
+        log.info("[ADMIN ACCESS] Creating new account for userId: {}", userId);
+
+        if (accountRepository.existsByAccountNumber(request.getAccountNumber())) {
+            log.warn("Account creation failed: Account number already exists: {}", request.getAccountNumber());
+            throw new IllegalArgumentException("Account number already exists: " + request.getAccountNumber());
+        }
+
+        User targetUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        Account newAccount = Account.builder()
+                .accountNumber(request.getAccountNumber())
+                .accountHolder(request.getAccountHolder())
+                .balance(request.getBalance())
+                .accountType(request.getAccountType())
+                .status(request.getStatus())
+                .build();
+
+        targetUser.addAccount(newAccount);
+        userRepository.save(targetUser);
+
+        log.info("[ADMIN ACCESS] Created account {} for userId: {}",
+                newAccount.getAccountNumber(), userId);
 
         return toAccountResponse(newAccount);
     }
