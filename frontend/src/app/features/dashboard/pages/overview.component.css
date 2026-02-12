@@ -4,7 +4,7 @@
 }
 
 .dashboard-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--ink-black) 100%);
   color: white;
   padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -63,7 +63,7 @@
   width: 40px;
   height: 40px;
   border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
+  border-top: 4px solid var(--regal-navy);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
@@ -187,7 +187,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--regal-navy);
 }
 
 .account-card:hover {
@@ -196,7 +196,7 @@
 }
 
 .card-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--ink-black) 100%);
   color: white;
   padding: 20px;
   display: flex;
@@ -274,7 +274,7 @@
   margin: 4px 0 0 0;
   font-size: 14px;
   font-weight: 600;
-  color: #667eea;
+  color: var(--regal-navy);
   font-family: 'Courier New', monospace;
 }
 
@@ -299,7 +299,7 @@
 .balance-display .currency {
   font-size: 18px;
   font-weight: 600;
-  color: #667eea;
+  color: var(--regal-navy);
 }
 
 .balance-display .amount {
@@ -355,7 +355,7 @@
 }
 
 .combined-balance {
-  color: #667eea;
+  color: var(--regal-navy);
 }
 
 /* Buttons */
@@ -371,14 +371,14 @@
 }
 
 .btn-primary {
-  background: #667eea;
+  background: var(--regal-navy);
   color: white;
 }
 
 .btn-primary:hover {
-  background: #5568d3;
+  background: var(--prussian-blue);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 53, 102, 0.3);
 }
 
 .btn-secondary {
@@ -394,15 +394,15 @@
 
 .btn-details {
   background: #f8f9fa;
-  color: #667eea;
-  border: 1px solid #667eea;
+  color: var(--regal-navy);
+  border: 1px solid var(--regal-navy);
 }
 
 .btn-details:hover {
-  background: #667eea;
+  background: var(--regal-navy);
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 53, 102, 0.3);
 }
 
 .btn-small {
@@ -553,7 +553,7 @@
 
 .profile-dropdown-header {
   padding: 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--ink-black) 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -625,7 +625,7 @@
 }
 
 .role-badge {
-  background: #667eea;
+  background: var(--regal-navy);
   color: white;
   padding: 4px 10px;
   border-radius: 12px;
@@ -680,7 +680,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--ink-black) 100%);
   color: white;
   border-radius: 12px 12px 0 0;
 }
@@ -736,7 +736,7 @@
 
 .detail-row.highlight {
   background: #f0f4ff;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--regal-navy);
   border-radius: 4px;
   margin: 8px 0;
 }
@@ -755,7 +755,7 @@
 
 .detail-value.balance-amount {
   font-size: 18px;
-  color: #667eea;
+  color: var(--regal-navy);
 }
 
 .modal-footer {

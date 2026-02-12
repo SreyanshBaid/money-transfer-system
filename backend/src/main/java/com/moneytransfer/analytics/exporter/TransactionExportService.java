@@ -131,29 +131,29 @@ public class TransactionExportService {
     /**
      * Generate CSV content from transaction logs.
      * 
-     * CSV format:
-     * id,from_account_id,to_account_id,idempotency_key,transaction_type,amount,balance_before,balance_after,status,description,created_at
+     * CSV format matches Snowflake RAW_TRANSACTIONS table schema:
+     * id,from_account_id,amount,balance_after,balance_before,created_at,description,idempotency_key,to_account_id,status,transaction_type
      */
     private String generateCsv(List<TransactionLog> transactions) {
         StringWriter writer = new StringWriter();
         
-        // Write header
-        writer.write("id,from_account_id,to_account_id,idempotency_key,transaction_type,amount,balance_before,balance_after,status,description,created_at\n");
+        // Write header - must match Snowflake table column order
+        writer.write("id,from_account_id,amount,balance_after,balance_before,created_at,description,idempotency_key,to_account_id,status,transaction_type\n");
         
         // Write rows
         for (TransactionLog log : transactions) {
-            writer.write(String.format("%s,%d,%s,%s,%s,%s,%s,%s,%s,\"%s\",%s\n",
+            writer.write(String.format("%s,%d,%s,%s,%s,%s,\"%s\",%s,%s,%s,%s\n",
                     escapeField(log.getId()),
                     log.getFromAccountId(),
-                    log.getToAccountId() != null ? log.getToAccountId().toString() : "",
-                    escapeField(log.getIdempotencyKey()),
-                    escapeField(log.getTransactionType()),
                     log.getAmount().toPlainString(),
-                    log.getBalanceBefore().toPlainString(),
                     log.getBalanceAfter().toPlainString(),
-                    escapeField(log.getStatus()),
+                    log.getBalanceBefore().toPlainString(),
+                    log.getCreatedAt().toString(),
                     escapeField(log.getDescription()),
-                    log.getCreatedAt().toString()
+                    escapeField(log.getIdempotencyKey()),
+                    log.getToAccountId() != null ? log.getToAccountId().toString() : "",
+                    escapeField(log.getStatus()),
+                    escapeField(log.getTransactionType())
             ));
         }
         

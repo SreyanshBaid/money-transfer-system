@@ -6,6 +6,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.io.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.*;
 
 /**
@@ -34,16 +39,39 @@ public class SnowflakeClient {
      * Get a Snowflake connection.
      */
     private Connection getConnection() throws SQLException {
-        String jdbcUrl = properties.getUrl() +
-                "?warehouse=" + properties.getWarehouse() +
-                "&db=" + properties.getDatabase() +
-                "&schema=" + properties.getSchema();
+        try {
+            // Build JDBC URL with properly encoded parameters
+            String jdbcUrl = properties.getUrl();
+            
+            // Add query parameters if not already present in the URL
+            if (!jdbcUrl.contains("?")) {
+                jdbcUrl += "?warehouse=" + urlEncode(properties.getWarehouse()) +
+                        "&db=" + urlEncode(properties.getDatabase()) +
+                        "&schema=" + urlEncode(properties.getSchema());
+            }
 
-        return DriverManager.getConnection(
-                jdbcUrl,
-                properties.getUsername(),
-                properties.getPassword()
-        );
+            return DriverManager.getConnection(
+                    jdbcUrl,
+                    properties.getUsername(),
+                    properties.getPassword()
+            );
+        } catch (Exception e) {
+            log.error("Failed to establish Snowflake connection", e);
+            throw new SQLException("Failed to establish Snowflake connection: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * URL encode a string parameter.
+     */
+    private String urlEncode(String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            // This should never happen with UTF-8
+            log.warn("Failed to URL encode value, using raw value: {}", value);
+            return value;
+        }
     }
 
     /**
@@ -87,7 +115,7 @@ public class SnowflakeClient {
             
             int rowsLoaded = 0;
             if (rs.next()) {
-                rowsLoaded = rs.getInt("rows_loaded");
+                rowsLoaded = rs.getInt(1);
             }
             
             log.info("Successfully loaded {} rows from {}", rowsLoaded, fileName);
@@ -111,7 +139,8 @@ public class SnowflakeClient {
 
     /**
      * Upload CSV content directly using PUT and then execute COPY INTO.
-     * This is a simplified approach that combines both operations.
+     * This writes the CSV to a temp file, uploads it to the Snowflake stage,
+     * and then executes COPY INTO.
      * 
      * @param fileName unique filename for this batch
      * @param csvContent CSV content as string
@@ -119,43 +148,80 @@ public class SnowflakeClient {
      * @throws SQLException if operation fails
      */
     public int uploadAndCopy(String fileName, String csvContent) throws SQLException {
-        // For production use, implement proper file-based PUT
-        // or use Snowflake's streaming API
-        // Here we'll simulate with direct table insert for testing
-        
         log.info("Starting upload and copy for file: {}", fileName);
         
-        // In a real implementation, you would:
-        // 1. Write CSV to a temp file
-        // 2. Use PUT command to upload to stage
-        // 3. Execute COPY INTO from staged file
-        
-        // For now, we'll use a simplified approach with COPY INTO from stage
-        try (Connection conn = getConnection()) {
-            // Step 1: Create a temporary file reference (simplified)
-            // In production, use actual file I/O or Snowflake streaming API
+        Path tempFile = null;
+        try {
+            // Step 1: Write CSV content to a temporary file with the desired filename
+            // This ensures the uploaded file has the correct name
+            tempFile = Files.createTempFile("analytics_", "_" + fileName);
+            Files.write(tempFile, csvContent.getBytes(StandardCharsets.UTF_8));
+            log.debug("Created temp file: {} ({} bytes)", tempFile, csvContent.length());
             
-            String stagePath = "@" + properties.getStage() + "/" + fileName;
-            
-            // Step 2: Execute COPY INTO
-            String copyCommand = String.format(
-                    "COPY INTO RAW_TRANSACTIONS FROM %s " +
-                    "FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' SKIP_HEADER = 1) " +
-                    "ON_ERROR = 'ABORT_STATEMENT'",
-                    stagePath
+            // Step 2: Upload temp file to Snowflake stage using PUT command
+            // Just upload to the stage root - Snowflake will preserve the filename
+            String putCommand = String.format(
+                    "PUT 'file://%s' @%s AUTO_COMPRESS=FALSE",
+                    tempFile.toAbsolutePath().toString().replace("\\", "/"),
+                    properties.getStage()
             );
             
-            try (Statement stmt = conn.createStatement()) {
+            try (Connection conn = getConnection();
+                 Statement stmt = conn.createStatement()) {
+                log.debug("Executing PUT command: {}", putCommand);
+                stmt.execute(putCommand);
+                log.info("Successfully uploaded to stage {}", properties.getStage());
+            }
+            
+            // Step 3: Get the actual uploaded filename (temp file basename)
+            String uploadedFileName = tempFile.getFileName().toString();
+            
+            // Step 4: Execute COPY INTO to load from staged file
+            String copyCommand = String.format(
+                    "COPY INTO RAW_TRANSACTIONS FROM @%s/%s " +
+                    "FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '\"' SKIP_HEADER = 1) " +
+                    "ON_ERROR = 'ABORT_STATEMENT'",
+                    properties.getStage(), uploadedFileName
+            );
+            
+            try (Connection conn = getConnection();
+                 Statement stmt = conn.createStatement()) {
                 log.debug("Executing COPY command: {}", copyCommand);
                 ResultSet rs = stmt.executeQuery(copyCommand);
                 
                 int rowsLoaded = 0;
                 if (rs.next()) {
-                    rowsLoaded = rs.getInt(1); // First column is rows_loaded
+                    // COPY INTO returns columns as VARCHAR, get as string and parse
+                    String rowsLoadedStr = rs.getString("rows_loaded");
+                    if (rowsLoadedStr != null && !rowsLoadedStr.isEmpty()) {
+                        try {
+                            rowsLoaded = Integer.parseInt(rowsLoadedStr);
+                        } catch (NumberFormatException e) {
+                            log.warn("Could not parse rows_loaded as integer: {}", rowsLoadedStr);
+                        }
+                    }
+                    
+                    // Log the full result row for debugging
+                    String file = rs.getString("file");
+                    String status = rs.getString("status");
+                    log.info("COPY result - file: {}, status: {}, rows_loaded: {}", file, status, rowsLoadedStr);
                 }
                 
-                log.info("Successfully loaded {} rows from {}", rowsLoaded, fileName);
+                log.info("Successfully loaded {} rows from {}", rowsLoaded, uploadedFileName);
                 return rowsLoaded;
+            }
+            
+        } catch (IOException e) {
+            throw new SQLException("Failed to write CSV to temp file: " + e.getMessage(), e);
+        } finally {
+            // Cleanup temp file
+            if (tempFile != null) {
+                try {
+                    Files.deleteIfExists(tempFile);
+                    log.debug("Deleted temp file: {}", tempFile);
+                } catch (IOException e) {
+                    log.warn("Failed to delete temp file: {}", tempFile, e);
+                }
             }
         }
     }
