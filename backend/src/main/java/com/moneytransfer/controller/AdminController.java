@@ -96,24 +96,29 @@ public class AdminController {
     /**
      * Admin endpoint to view any account's transaction history.
      * No ownership checks - admins can view all transactions.
+     * Supports pagination via query parameters.
      * 
      * @param accountId account ID to view
-     * @return transaction history
+     * @param page page number (0-indexed, default: 0)
+     * @param size page size (default: 12)
+     * @return paginated transaction history
      */
     @GetMapping("/accounts/{accountId}/transactions")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(
         summary = "[ADMIN] Get any account's transaction history", 
-        description = "Admin-only: View transaction history of any account"
+        description = "Admin-only: View paginated transaction history of any account"
     )
     @ApiResponse(responseCode = "200", description = "Transaction history retrieved")
     @ApiResponse(responseCode = "403", description = "Forbidden - ADMIN role required")
     @ApiResponse(responseCode = "404", description = "Account not found")
     @SecurityRequirement(name = "Bearer")
-    public ResponseEntity<List<TransactionLogResponse>> getAccountTransactions(@PathVariable Long accountId) {
-        log.info("[ADMIN] Viewing transaction history for account: {}", accountId);
-        List<TransactionLogResponse> transactions = accountService.getTransactionHistoryAdmin(accountId);
-        return ResponseEntity.ok(transactions);
+    public ResponseEntity<?> getAccountTransactions(
+            @PathVariable Long accountId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        log.info("[ADMIN] Viewing transaction history for account: {} (page: {}, size: {})", accountId, page, size);
+        return ResponseEntity.ok(accountService.getTransactionHistoryAdminPaginated(accountId, page, size));
     }
 
     /**

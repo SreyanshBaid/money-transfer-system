@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
-import { AccountService, Transaction } from '../services/account.service';
+import { AccountService, Transaction, PaginatedResponse } from '../services/account.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -19,6 +19,15 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
   loading = true;
   error = '';
   accountId: string | null = null;
+  
+  // Pagination properties
+  currentPage = 0;
+  pageSize = 12;
+  totalPages = 0;
+  totalElements = 0;
+  isFirstPage = true;
+  isLastPage = true;
+  
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -67,27 +76,24 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('Loading transactions for account:', accountIdNum);
-    console.log('API URL will be: http://localhost:8080/api/v1/accounts/' + accountIdNum + '/transactions');
+    console.log('Loading transactions for account:', accountIdNum, 'page:', this.currentPage);
     
-    this.accountService.getTransactions(accountIdNum)
+    this.accountService.getTransactions(accountIdNum, this.currentPage, this.pageSize)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (transactions: Transaction[]) => {
-          console.log('✅ Transactions loaded successfully:', transactions);
-          this.transactions = transactions;
+        next: (response: PaginatedResponse<Transaction>) => {
+          console.log('✅ Transactions loaded successfully:', response);
+          this.transactions = response.content;
+          this.totalPages = response.totalPages;
+          this.totalElements = response.totalElements;
+          this.isFirstPage = response.first;
+          this.isLastPage = response.last;
           this.loading = false;
-          console.log('Loading flag set to:', this.loading);
-          console.log('Transactions array length:', this.transactions.length);
-          console.log('Error flag:', this.error);
+          console.log(`Page ${this.currentPage + 1}/${this.totalPages}, Total: ${this.totalElements} transactions`);
           this.cdr.markForCheck();
         },
         error: (err: any) => {
           console.error('❌ Failed to load transactions:', err);
-          console.error('Error object:', JSON.stringify(err, null, 2));
-          console.error('Error status:', err.status);
-          console.error('Error message:', err.message);
-          console.error('Error error:', err.error);
           this.loading = false;
           
           if (err.status === 404) {
@@ -104,12 +110,7 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
             this.error = `Failed to load transaction history: ${err.message || err.statusText || 'Unknown error'}`;
           }
           this.cdr.markForCheck();
-        },
-        
-        complete: () => {
-          console.log('Transaction loading completed');
         }
-        // Ensure view updates after async operations
       });
   }
 
@@ -118,7 +119,52 @@ export class TransactionHistoryComponent implements OnInit, OnDestroy {
   }
 
   refresh(): void {
+    this.currentPage = 0;
     this.loadTransactions();
+  }
+
+  // Pagination methods
+  nextPage(): void {
+    if (!this.isLastPage && this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadTransactions();
+    }
+  }
+
+  previousPage(): void {
+    if (!this.isFirstPage && this.currentPage > 0) {
+      this.currentPage--;
+      this.loadTransactions();
+    }
+  }
+
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages && page !== this.currentPage) {
+      this.currentPage = page;
+      this.loadTransactions();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxPagesToShow = 5;
+    
+    if (this.totalPages <= maxPagesToShow) {
+      // Show all pages if total is small
+      for (let i = 0; i < this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show current page and surrounding pages
+      const startPage = Math.max(0, this.currentPage - 2);
+      const endPage = Math.min(this.totalPages - 1, this.currentPage + 2);
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
   }
 
   ngOnDestroy(): void {

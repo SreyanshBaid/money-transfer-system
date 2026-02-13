@@ -1,6 +1,8 @@
 package com.moneytransfer.repository;
 
 import com.moneytransfer.domain.entity.TransactionLog;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -40,6 +42,17 @@ public interface TransactionLogRepository extends JpaRepository<TransactionLog, 
      */
     @Query("SELECT t FROM TransactionLog t WHERE t.fromAccountId = :fromAccountId ORDER BY t.createdAt DESC")
     List<TransactionLog> findByFromAccountIdOrderByCreatedAtDesc(@Param("fromAccountId") Long fromAccountId);
+
+    /**
+     * Find transactions for a specific account with pagination support.
+     * Useful for displaying paginated transaction history.
+     *
+     * @param fromAccountId the account ID this log belongs to
+     * @param pageable pagination information (page number, size, sort)
+     * @return paginated list of transactions for the account
+     */
+    @Query("SELECT t FROM TransactionLog t WHERE t.fromAccountId = :fromAccountId ORDER BY t.createdAt DESC")
+    Page<TransactionLog> findByFromAccountIdOrderByCreatedAtDesc(@Param("fromAccountId") Long fromAccountId, Pageable pageable);
 
     /**
     * Find transactions by counterparty account.

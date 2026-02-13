@@ -1,6 +1,7 @@
 # Dashboard Login Flow Implementation
 
 ## Overview
+
 This implementation provides a complete solution for the money transfer system dashboard that follows reactive programming best practices using Angular and RxJS. When a user logs in, the system:
 
 1. Fetches the authenticated user's profile
@@ -13,9 +14,11 @@ This implementation provides a complete solution for the money transfer system d
 ## Architecture
 
 ### 1. Service Layer (AccountService)
+
 **File:** `frontend/src/app/features/dashboard/services/account.service.ts`
 
-#### Key Features:
+#### Key Features
+
 - **getAccounts()**: Fetches raw account data from the backend
 - **getBalance(accountId)**: Fetches balance for a specific account
 - **getAccountsWithDetails()**: Advanced method combining accounts and balances
@@ -24,6 +27,7 @@ This implementation provides a complete solution for the money transfer system d
   - Returns `AccountCardViewModel[]` (fully composed view models)
 
 #### View Model
+
 ```typescript
 export interface AccountCardViewModel {
   id: string;
@@ -37,22 +41,26 @@ export interface AccountCardViewModel {
 
 This view model is optimized for the UI - no raw DTOs are stored in the component.
 
-#### RxJS Operators Used:
+#### RxJS Operators Used
+
 - **`map()`**: Transforms HTTP response data into view models
 - **`forkJoin()`**: Executes multiple balance requests in parallel
 - **`switchMap()`**: Flattens nested observables (used in component)
 - **`takeUntil()`**: Prevents memory leaks by unsubscribing on component destroy
 
 ### 2. Component Layer (OverviewComponent)
+
 **File:** `frontend/src/app/features/dashboard/pages/overview.component.ts`
 
-#### Key Features:
+#### Key Features
+
 - **No nested subscriptions**: Uses RxJS operators instead of nested subscribe calls
 - **Observable-based**: All data flows through observables
 - **Proper lifecycle management**: Implements `OnDestroy` and uses `takeUntil()` pattern
 - **Explicit state management**: Separate loading and error observables
 
-#### Observable Streams:
+#### Observable Streams
+
 ```typescript
 // User data observable
 user$: Observable<User | null> = this.authService.getCurrentUser();
@@ -70,23 +78,27 @@ accounts$: Observable<AccountCardViewModel[]> =
   );
 ```
 
-#### State Management:
+#### State Management
+
 - Subscriptions use the `takeUntil()` pattern to prevent memory leaks
 - `destroy$` Subject automatically completes all subscriptions on component destroy
 - Loading and error states are explicitly managed
 
-#### TrackBy Function:
+#### TrackBy Function
+
 ```typescript
 trackByAccountId(index: number, account: AccountCardViewModel): string {
   return account.id;
 }
 ```
+
 This optimization ensures Angular doesn't recreate DOM elements unnecessarily when the list changes.
 
 ### 3. View Layer (Template)
+
 **File:** `frontend/src/app/features/dashboard/pages/overview.component.html`
 
-#### Template Features:
+#### Template Features
 
 1. **Header Section**
    - Dynamic user greeting from authenticated user
@@ -118,11 +130,13 @@ This optimization ensures Angular doesn't recreate DOM elements unnecessarily wh
    - Enhanced with emoji icons
 
 ### 4. Styling (CSS)
+
 **File:** `frontend/src/app/features/dashboard/pages/overview.component.css`
 
-#### Key CSS Features:
+#### Key CSS Features
 
 1. **Scrollable Cards Container**
+
 ```css
 .accounts-scroll-container {
   overflow-x: auto;
@@ -131,7 +145,8 @@ This optimization ensures Angular doesn't recreate DOM elements unnecessarily wh
 }
 ```
 
-2. **Account Card Styling**
+1. **Account Card Styling**
+
 ```css
 .account-card {
   flex: 0 0 320px;
@@ -146,12 +161,13 @@ This optimization ensures Angular doesn't recreate DOM elements unnecessarily wh
 }
 ```
 
-3. **Responsive Breakpoints**
+1. **Responsive Breakpoints**
    - Mobile: < 600px
    - Tablet: < 768px
    - Desktop: ≥ 768px
 
-4. **Loading Spinner Animation**
+2. **Loading Spinner Animation**
+
 ```css
 @keyframes spin {
   0% { transform: rotate(0deg); }
@@ -160,6 +176,7 @@ This optimization ensures Angular doesn't recreate DOM elements unnecessarily wh
 ```
 
 ### 5. Utility (Pipe)
+
 **File:** `frontend/src/app/shared/pipes/combine-balance.pipe.ts`
 
 The `CombineBalancePipe` calculates the total balance across all accounts:
@@ -199,12 +216,15 @@ Scrollable Account Cards
 ## Key Principles Implemented
 
 ### 1. Reactive Programming
+
 - All data flows through observables
 - No imperative state management
 - Event-driven architecture
 
 ### 2. No Nested Subscriptions
+
 Instead of:
+
 ```typescript
 // ❌ Bad: Nested subscriptions
 this.accountService.getAccounts().subscribe(accounts => {
@@ -217,6 +237,7 @@ this.accountService.getAccounts().subscribe(accounts => {
 ```
 
 We use:
+
 ```typescript
 // ✅ Good: Flat observable chain with forkJoin
 this.accountService.getAccountsWithDetails().pipe(
@@ -226,16 +247,19 @@ this.accountService.getAccountsWithDetails().pipe(
 ```
 
 ### 3. Proper Resource Management
+
 - `takeUntil()` pattern prevents memory leaks
 - `OnDestroy` lifecycle hook ensures cleanup
 - No observable subscriptions in templates (async pipe used instead)
 
 ### 4. View Model Pattern
+
 - Components don't receive raw DTOs
 - AccountCardViewModel is optimized for UI display
 - Separation of concerns between API and UI models
 
 ### 5. Error Handling
+
 - Explicit error state in component
 - User-friendly error messages
 - Retry functionality provided
@@ -243,14 +267,18 @@ this.accountService.getAccountsWithDetails().pipe(
 ## Usage Flow
 
 ### 1. After Login
+
 When user logs in successfully through the auth service:
+
 ```typescript
 this.authService.login(credentials).subscribe(/* ... */);
 // AuthState is updated with isAuthenticated=true
 ```
 
 ### 2. Navigate to Dashboard
+
 When user navigates to `/dashboard`:
+
 ```typescript
 // OverviewComponent initializes
 // accounts$ observable automatically fetches accounts due to switchMap
@@ -258,12 +286,14 @@ When user navigates to `/dashboard`:
 ```
 
 ### 3. Account Data Display
+
 ```typescript
 // In template: (accounts$ | async) as accounts
 // Automatically handles loading, error, and success states
 ```
 
 ### 4. User Actions
+
 - Click "Send Money" → Navigate to transfer with account ID
 - Click "History" → Navigate to history with account ID
 - All actions pass account ID via query params
@@ -271,16 +301,19 @@ When user navigates to `/dashboard`:
 ## Performance Optimizations
 
 1. **TrackBy Function**: Prevents unnecessary DOM re-renders
+
 ```typescript
 <div *ngFor="let account of accounts; trackBy: trackByAccountId">
 ```
 
-2. **Parallel Balance Fetching**: Uses `forkJoin` for concurrent requests
+1. **Parallel Balance Fetching**: Uses `forkJoin` for concurrent requests
+
 ```typescript
 forkJoin(balanceObservables)
 ```
 
-3. **OnPush Change Detection**: Can be added for further optimization
+1. **OnPush Change Detection**: Can be added for further optimization
+
 ```typescript
 @Component({
   // ...
@@ -288,7 +321,7 @@ forkJoin(balanceObservables)
 })
 ```
 
-4. **Lazy Loading**: Accounts are only fetched when user is authenticated
+1. **Lazy Loading**: Accounts are only fetched when user is authenticated
 
 ## Error Scenarios Handled
 
@@ -332,7 +365,8 @@ forkJoin(balanceObservables)
 
 ## Files Modified/Created
 
-### Modified Files:
+### Modified Files
+
 1. `frontend/src/app/features/dashboard/services/account.service.ts`
    - Added `AccountCardViewModel` interface
    - Added `getAccountsWithDetails()` method
@@ -356,7 +390,8 @@ forkJoin(balanceObservables)
    - Responsive design improvements
    - Animation enhancements
 
-### New Files Created:
+### New Files Created
+
 1. `frontend/src/app/shared/pipes/combine-balance.pipe.ts`
    - Pipe for calculating combined account balances
 

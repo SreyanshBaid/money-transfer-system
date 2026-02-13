@@ -137,18 +137,24 @@ public class AccountController {
 
     /**
      * Get transaction history for an account.
+     * Supports pagination via query parameters.
      *
      * @param accountId account ID
-     * @return list of transactions for the account
+     * @param page page number (0-indexed, default: 0)
+     * @param size page size (default: 12)
+     * @return paginated list of transactions for the account
      */
     @GetMapping("/{accountId}/transactions")
-    @Operation(summary = "Get transaction history", description = "Retrieve all transactions for an account")
+    @Operation(summary = "Get transaction history", description = "Retrieve paginated transactions for an account")
     @ApiResponse(responseCode = "200", description = "Transactions retrieved")
     @ApiResponse(responseCode = "404", description = "Account not found")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     @ApiResponse(responseCode = "429", description = "Rate limit exceeded - max 60 reads per minute")
     @SecurityRequirement(name = "Bearer")
-    public ResponseEntity<List<TransactionLogResponse>> getTransactions(@PathVariable Long accountId) {
+    public ResponseEntity<?> getTransactions(
+            @PathVariable Long accountId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
         // Rate limit: 60 account reads per minute per user
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         if (!rateLimitUtil.allowAccountRead(userId)) {
@@ -156,7 +162,7 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         }
         
-        log.debug("Fetching transaction history for account: {}", accountId);
-        return ResponseEntity.ok(accountService.getAccountTransactionHistory(accountId));
+        log.debug("Fetching transaction history for account: {} (page: {}, size: {})", accountId, page, size);
+        return ResponseEntity.ok(accountService.getAccountTransactionHistoryPaginated(accountId, page, size));
     }
 }

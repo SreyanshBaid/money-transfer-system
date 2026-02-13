@@ -45,6 +45,17 @@ export interface Transaction {
   balanceAfter?: number;
 }
 
+// Paginated response interface - matches backend PaginatedResponse
+export interface PaginatedResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
 // View model combining account details and balance
 export interface AccountCardViewModel {
   id: string | number;
@@ -87,23 +98,32 @@ export class AccountService {
       );
   }
 
-  // Gets transaction history by account ID
-  getTransactions(accountId: number): Observable<Transaction[]> {
-    console.log(`🔵 Fetching transactions for account ${accountId}`);
-    console.log(`🔵 URL: ${this.apiUrl}/${accountId}/transactions`);
+  // Gets transaction history by account ID with optional pagination
+  getTransactions(accountId: number, page: number = 0, size: number = 12): Observable<PaginatedResponse<Transaction>> {
+    console.log(`🔵 Fetching transactions for account ${accountId} (page: ${page}, size: ${size})`);
+    const url = `${this.apiUrl}/${accountId}/transactions?page=${page}&size=${size}`;
+    console.log(`🔵 URL: ${url}`);
     
-    return this.http.get<TransactionResponse[]>(
-      `${this.apiUrl}/${accountId}/transactions`
-    ).pipe(
+    return this.http.get<PaginatedResponse<TransactionResponse>>(url).pipe(
       timeout(10000), // 10 second timeout
-      map((transactions: TransactionResponse[]) => {
-        console.log(`✅ Received ${transactions?.length || 0} transactions`);
-        console.log('Raw response:', transactions);
-        if (!transactions || !Array.isArray(transactions)) {
-          console.warn('⚠️ Invalid transaction response format:', transactions);
-          return [];
+      map((response: PaginatedResponse<TransactionResponse>) => {
+        console.log(`✅ Received page ${response.page + 1}/${response.totalPages} with ${response.content?.length || 0} transactions`);
+        console.log('Raw response:', response);
+        
+        if (!response.content || !Array.isArray(response.content)) {
+          console.warn('⚠️ Invalid transaction response format:', response);
+          return {
+            content: [],
+            page: response.page || 0,
+            size: response.size || size,
+            totalElements: 0,
+            totalPages: 0,
+            first: true,
+            last: true
+          };
         }
-        return transactions.map(tx => ({
+        
+        const transactions = response.content.map(tx => ({
           id: tx.id,
           type: tx.transactionType,
           amount: tx.amount,
@@ -115,6 +135,16 @@ export class AccountService {
           balanceBefore: tx.balanceBefore,
           balanceAfter: tx.balanceAfter
         }));
+        
+        return {
+          content: transactions,
+          page: response.page,
+          size: response.size,
+          totalElements: response.totalElements,
+          totalPages: response.totalPages,
+          first: response.first,
+          last: response.last
+        };
       }),
       catchError((error: any) => {
         console.error('❌ Error in getTransactions:', error);

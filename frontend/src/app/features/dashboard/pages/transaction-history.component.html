@@ -70,6 +70,39 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Pagination Controls -->
+      <div class="pagination-container" *ngIf="totalPages > 1">
+        <div class="pagination-info">
+          Showing {{ transactions.length }} of {{ totalElements }} transactions (Page {{ currentPage + 1 }} of {{ totalPages }})
+        </div>
+        <div class="pagination-controls">
+          <button 
+            class="btn btn-pagination" 
+            (click)="previousPage()" 
+            [disabled]="isFirstPage || loading">
+            ← Previous
+          </button>
+          
+          <div class="page-numbers">
+            <button 
+              *ngFor="let page of getPageNumbers()" 
+              class="btn btn-page-number" 
+              [class.active]="page === currentPage"
+              (click)="goToPage(page)"
+              [disabled]="loading">
+              {{ page + 1 }}
+            </button>
+          </div>
+          
+          <button 
+            class="btn btn-pagination" 
+            (click)="nextPage()" 
+            [disabled]="isLastPage || loading">
+            Next →
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

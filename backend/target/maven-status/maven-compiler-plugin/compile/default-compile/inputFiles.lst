@@ -17,6 +17,7 @@
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/domain/status/AccountStatus.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/dto/response/AccountResponse.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/dto/response/LoginResponse.java
+/home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/dto/response/PaginatedResponse.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/config/JpaConfig.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/controller/UserController.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/domain/entity/UserRole.java

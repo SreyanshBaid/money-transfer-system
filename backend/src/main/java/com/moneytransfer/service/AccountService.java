@@ -8,12 +8,16 @@ import com.moneytransfer.domain.exception.UserNotFoundException;
 import com.moneytransfer.dto.request.CreateAccountRequest;
 import com.moneytransfer.dto.response.AccountBalanceResponse;
 import com.moneytransfer.dto.response.AccountResponse;
+import com.moneytransfer.dto.response.PaginatedResponse;
 import com.moneytransfer.dto.response.TransactionLogResponse;
 import com.moneytransfer.repository.AccountRepository;
 import com.moneytransfer.repository.TransactionLogRepository;
 import com.moneytransfer.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,6 +106,42 @@ public class AccountService {
         return logs.stream()
                 .map(this::toTransactionLogResponse)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Get paginated transaction history for an account.
+     * Validates user ownership before returning history.
+     *
+     * @param accountId account ID
+     * @param page page number (0-indexed)
+     * @param size number of items per page
+     * @return paginated transaction logs
+     */
+    public PaginatedResponse<TransactionLogResponse> getAccountTransactionHistoryPaginated(Long accountId, int page, int size) {
+        // Validate ownership (admins bypass this check)
+        ownershipService.validateAccountOwnership(accountId);
+        
+        if (!accountRepository.existsById(accountId)) {
+            throw new AccountNotFoundException(accountId);
+        }
+
+        log.debug("Retrieving paginated transaction history for account: {} (page: {}, size: {})", accountId, page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TransactionLog> logPage = transactionLogRepository.findByFromAccountIdOrderByCreatedAtDesc(accountId, pageable);
+        
+        List<TransactionLogResponse> content = logPage.getContent().stream()
+                .map(this::toTransactionLogResponse)
+                .collect(Collectors.toList());
+
+        return PaginatedResponse.<TransactionLogResponse>builder()
+                .content(content)
+                .page(logPage.getNumber())
+                .size(logPage.getSize())
+                .totalElements(logPage.getTotalElements())
+                .totalPages(logPage.getTotalPages())
+                .first(logPage.isFirst())
+                .last(logPage.isLast())
+                .build();
     }
 
     /**
@@ -253,6 +293,39 @@ public class AccountService {
         return logs.stream()
                 .map(this::toTransactionLogResponse)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * [ADMIN] Get paginated transaction history - no ownership check.
+     * Admins can view any account's transaction history.
+     *
+     * @param accountId account ID
+     * @param page page number (0-indexed)
+     * @param size number of items per page
+     * @return paginated transaction logs
+     */
+    public PaginatedResponse<TransactionLogResponse> getTransactionHistoryAdminPaginated(Long accountId, int page, int size) {
+        if (!accountRepository.existsById(accountId)) {
+            throw new AccountNotFoundException(accountId);
+        }
+
+        log.info("[ADMIN ACCESS] Retrieving paginated transaction history for account: {} (page: {}, size: {})", accountId, page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TransactionLog> logPage = transactionLogRepository.findByFromAccountIdOrderByCreatedAtDesc(accountId, pageable);
+        
+        List<TransactionLogResponse> content = logPage.getContent().stream()
+                .map(this::toTransactionLogResponse)
+                .collect(Collectors.toList());
+
+        return PaginatedResponse.<TransactionLogResponse>builder()
+                .content(content)
+                .page(logPage.getNumber())
+                .size(logPage.getSize())
+                .totalElements(logPage.getTotalElements())
+                .totalPages(logPage.getTotalPages())
+                .first(logPage.isFirst())
+                .last(logPage.isLast())
+                .build();
     }
 
     private AccountResponse toAccountResponse(Account account) {
