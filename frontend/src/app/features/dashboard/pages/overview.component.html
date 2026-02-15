@@ -6,7 +6,7 @@
       <div class="profile-section">
         <div class="profile-avatar" (click)="toggleProfileDropdown()" title="View profile">
           <div class="avatar-circle">
-            <span class="avatar-initials" *ngIf="user$ | async as user">{{ getUserInitials(user) }}</span>
+            <img src="assets/profile.png" alt="Profile Avatar" class="avatar-image">
           </div>
         </div>
         
@@ -14,7 +14,7 @@
         <div class="profile-dropdown" *ngIf="showProfileDropdown" (click)="$event.stopPropagation()">
           <div class="profile-dropdown-header">
             <div class="avatar-circle-large">
-              <span class="avatar-initials-large" *ngIf="user$ | async as user">{{ getUserInitials(user) }}</span>
+              <img src="assets/profile.png" alt="Profile Avatar" class="avatar-image-large">
             </div>
             <div class="profile-info" *ngIf="user$ | async as user">
               <h3>{{ user.username }}</h3>

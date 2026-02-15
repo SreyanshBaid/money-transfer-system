@@ -516,6 +516,14 @@
   justify-content: center;
   border: 2px solid white;
   transition: all 0.3s;
+  overflow: hidden;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .profile-avatar:hover .avatar-circle {
@@ -575,6 +583,14 @@
   justify-content: center;
   border: 3px solid white;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.avatar-image-large {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .avatar-initials-large {
