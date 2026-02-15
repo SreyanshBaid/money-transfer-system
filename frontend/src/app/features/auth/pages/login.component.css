@@ -79,14 +79,14 @@
 }
 
 .btn-primary {
-  background: var(--regal-navy);
+  background: linear-gradient(135deg, var(--regal-navy), var(--prussian-blue));
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--prussian-blue);
+  background: linear-gradient(135deg, var(--prussian-blue), var(--regal-navy));
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 53, 102, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 53, 102, 0.3), 0 0 0 2px rgba(255, 195, 0, 0.2);
 }
 
 .btn-primary:disabled {

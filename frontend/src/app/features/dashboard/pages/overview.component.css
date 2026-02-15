@@ -9,7 +9,7 @@
 }
 
 .dashboard-header {
-  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--ink-black) 100%);
+  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--regal-navy) 70%, var(--school-bus-yellow) 100%);
   color: white;
   padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -119,7 +119,7 @@
 
 .welcome-banner h2 {
   margin: 0 0 8px 0;
-  color: #333;
+  color: var(--regal-navy);
 }
 
 .welcome-banner p {
@@ -192,7 +192,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border-left: 4px solid var(--regal-navy);
+  border-left: 4px solid var(--school-bus-yellow);
 }
 
 .account-card:hover {
@@ -201,7 +201,7 @@
 }
 
 .card-header {
-  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--ink-black) 100%);
+  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--regal-navy) 75%, var(--school-bus-yellow) 100%);
   color: white;
   padding: 20px;
   display: flex;
@@ -310,7 +310,7 @@
 .balance-display .amount {
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  color: var(--prussian-blue);
 }
 
 .last-updated {
@@ -342,6 +342,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   text-align: center;
+  border-top: 3px solid var(--school-bus-yellow);
 }
 
 .stat-item h4 {
@@ -356,7 +357,7 @@
   margin: 0;
   font-size: 28px;
   font-weight: bold;
-  color: #333;
+  color: var(--prussian-blue);
 }
 
 .combined-balance {
@@ -376,38 +377,38 @@
 }
 
 .btn-primary {
-  background: var(--regal-navy);
+  background: linear-gradient(135deg, var(--regal-navy), var(--prussian-blue));
   color: white;
 }
 
 .btn-primary:hover {
-  background: var(--prussian-blue);
+  background: linear-gradient(135deg, var(--prussian-blue), var(--regal-navy));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 53, 102, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 53, 102, 0.3), 0 0 0 2px rgba(255, 195, 0, 0.2);
 }
 
 .btn-secondary {
-  background: #f0f0f0;
-  color: #333;
-  border: 1px solid #ddd;
+  background: var(--school-bus-yellow);
+  color: var(--ink-black);
+  border: 1px solid var(--gold);
 }
 
 .btn-secondary:hover {
-  background: #e8e8e8;
-  border-color: #999;
+  background: var(--gold);
+  border-color: var(--school-bus-yellow);
 }
 
 .btn-details {
   background: #f8f9fa;
   color: var(--regal-navy);
-  border: 1px solid var(--regal-navy);
+  border: 1px solid var(--school-bus-yellow);
 }
 
 .btn-details:hover {
   background: var(--regal-navy);
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 53, 102, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 53, 102, 0.3), 0 0 0 2px rgba(255, 195, 0, 0.2);
 }
 
 .btn-small {

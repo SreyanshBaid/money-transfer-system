@@ -1,6 +1,6 @@
 .transfer-container {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: linear-gradient(135deg, rgba(0, 53, 102, 0.08), rgba(255, 195, 0, 0.12)), #f5f7fa;
   padding: 20px;
   display: flex;
   justify-content: center;
@@ -17,7 +17,7 @@
 }
 
 .card-header {
-  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--ink-black) 100%);
+  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--regal-navy) 75%, var(--school-bus-yellow) 100%);
   color: white;
   padding: 30px;
   text-align: center;
@@ -122,14 +122,14 @@ form {
 }
 
 .btn-primary {
-  background: var(--regal-navy);
+  background: linear-gradient(135deg, var(--regal-navy), var(--prussian-blue));
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: var(--prussian-blue);
+  background: linear-gradient(135deg, var(--prussian-blue), var(--regal-navy));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 53, 102, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 53, 102, 0.3), 0 0 0 2px rgba(255, 195, 0, 0.2);
 }
 
 .btn-primary:disabled {
@@ -139,14 +139,14 @@ form {
 }
 
 .btn-secondary {
-  background: #f0f0f0;
-  color: #333;
-  border: 1px solid #ddd;
+  background: var(--school-bus-yellow);
+  color: var(--ink-black);
+  border: 1px solid var(--gold);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #e8e8e8;
-  border-color: #999;
+  background: var(--gold);
+  border-color: var(--school-bus-yellow);
 }
 
 .btn-secondary:disabled {
