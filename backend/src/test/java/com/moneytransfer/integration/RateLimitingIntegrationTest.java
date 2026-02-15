@@ -20,17 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 @DisplayName("Rate Limiting Integration Tests")
 class RateLimitingIntegrationTest {
 
@@ -141,26 +138,6 @@ class RateLimitingIntegrationTest {
                 .build();
         Account savedAccount3 = accountRepository.save(account3);
         account3Id = savedAccount3.getId();
-    }
-
-    @DynamicPropertySource
-    static void registerMySqlProperties(DynamicPropertyRegistry registry) {
-        Map<String, String> env = loadDotEnvIfPresent();
-        String url = firstNonBlank(System.getenv("DB_URL"), System.getProperty("DB_URL"), env.get("DB_URL"));
-        String username = firstNonBlank(System.getenv("DB_USERNAME"), System.getProperty("DB_USERNAME"), env.get("DB_USERNAME"));
-        String password = firstNonBlank(System.getenv("DB_PASSWORD"), System.getProperty("DB_PASSWORD"), env.get("DB_PASSWORD"));
-
-        if (url == null || username == null || password == null) {
-            throw new IllegalStateException("DB_URL, DB_USERNAME, and DB_PASSWORD must be set for integration tests.");
-        }
-
-        registry.add("spring.datasource.url", () -> url);
-        registry.add("spring.datasource.username", () -> username);
-        registry.add("spring.datasource.password", () -> password);
-        registry.add("spring.datasource.driver-class-name", () -> "com.mysql.cj.jdbc.Driver");
-        registry.add("spring.jpa.hibernate.ddl-auto", () -> "validate");
-        registry.add("spring.jpa.properties.hibernate.dialect", () -> "org.hibernate.dialect.MySQL8Dialect");
-        registry.add("spring.flyway.baseline-on-migrate", () -> "true");
     }
 
     // Helper method to get a valid token
@@ -406,36 +383,5 @@ class RateLimitingIntegrationTest {
         mockMvc.perform(get("/v3/api-docs"))
                 .andExpect(status().isOk())
                 .andReturn();
-    }
-
-    // ==================== HELPER METHODS ====================
-
-    private static String firstNonBlank(String... values) {
-        for (String value : values) {
-            if (value != null && !value.isBlank()) {
-                return value;
-            }
-        }
-        return null;
-    }
-
-    private static Map<String, String> loadDotEnvIfPresent() {
-        Map<String, String> env = new HashMap<>();
-        try {
-            Path dotEnvPath = Path.of(".env");
-            if (Files.exists(dotEnvPath)) {
-                Files.readAllLines(dotEnvPath).forEach(line -> {
-                    if (!line.isBlank() && !line.startsWith("#")) {
-                        String[] parts = line.split("=", 2);
-                        if (parts.length == 2) {
-                            env.put(parts[0].trim(), parts[1].trim());
-                        }
-                    }
-                });
-            }
-        } catch (Exception e) {
-            // Ignore if .env doesn't exist
-        }
-        return env;
     }
 }

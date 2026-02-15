@@ -2,7 +2,16 @@
 
 ## Overview
 
-This document describes all available API endpoints for the Money Transfer System. All endpoints (except `/auth/login` and Swagger UI) require authentication via JWT token in the `Authorization: Bearer <token>` header.
+This document describes all available API endpoints for the Money Transfer System. The system provides 21 REST API endpoints across the following categories:
+
+- **Authentication** (2 endpoints): Login, logout with JWT tokens
+- **User Management** (5 endpoints): User registration, password reset, profile management
+- **Account Operations** (7 endpoints): Account creation, balance inquiry, transaction history
+- **Money Transfers** (1 endpoint): Secure transfer initiation with idempotency
+- **Admin Operations** (5 endpoints): Administrative oversight and account management
+- **Public/Documentation** (2 endpoints): Swagger UI and OpenAPI spec
+
+All endpoints (except `/auth/login`, `/users/forgot-password`, `/users/reset-password`, and Swagger UI) require authentication via JWT token in the `Authorization: Bearer <token>` header.
 
 ---
 
@@ -11,11 +20,13 @@ This document describes all available API endpoints for the Money Transfer Syste
 ### Login Endpoint
 
 #### `POST /auth/login`
+
 Login with credentials to receive a JWT token.
 
 **Authentication**: None (public endpoint)
 
 **Request Body**:
+
 ```json
 {
   "username": "string",
@@ -24,6 +35,7 @@ Login with credentials to receive a JWT token.
 ```
 
 **Response (200 OK)**:
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiJ9...",
@@ -33,12 +45,14 @@ Login with credentials to receive a JWT token.
 ```
 
 **Error Responses**:
+
 - `401 Unauthorized` - Invalid credentials
 - `429 Too Many Requests` - Rate limit exceeded (5 login attempts per minute)
 
 **Rate Limit**: 5 login attempts per minute per username
 
 **Example**:
+
 ```bash
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
@@ -51,14 +65,17 @@ curl -X POST http://localhost:8080/auth/login \
 ### Logout Endpoint
 
 #### `POST /auth/logout`
+
 Logout user and invalidate JWT token by adding it to blacklist.
 
 **Authentication**: Bearer token required in Authorization header
 
 **Headers**:
+
 - `Authorization: Bearer <token>`
 
 **Response (200 OK)**:
+
 ```json
 {
   "message": "Logout successful",
@@ -67,7 +84,9 @@ Logout user and invalidate JWT token by adding it to blacklist.
 ```
 
 **Error Responses**:
+
 - `400 Bad Request` - No token provided, invalid token format, or logout failed
+
 ```json
 {
   "message": "No token provided",
@@ -76,6 +95,7 @@ Logout user and invalidate JWT token by adding it to blacklist.
 ```
 
 **Example**:
+
 ```bash
 curl -X POST http://localhost:8080/auth/logout \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9..."
@@ -85,21 +105,341 @@ curl -X POST http://localhost:8080/auth/logout \
 
 ---
 
-## User Endpoints
+## User Management Endpoints
 
-All USER endpoints require authentication with `USER` or `ADMIN` role.
+### User Registration
+
+#### `POST /users/register`
+
+Register a new user account (ADMIN ONLY).
+
+**Roles Required**: `ADMIN` only
+
+**Request Body**:
+
+```json
+{
+  "username": "string",
+  "password": "string",
+  "email": "user@example.com"
+}
+```
+
+**Response (201 Created)**:
+
+```json
+{
+  "id": 5,
+  "username": "newuser",
+  "email": "newuser@example.com",
+  "role": "USER",
+  "createdAt": "2026-02-13T10:00:00Z"
+}
+```
+
+**Error Responses**:
+
+- `400 Bad Request` - Username already exists or invalid input
+- `401 Unauthorized` - No valid JWT token
+- `403 Forbidden` - USER role attempting to register users
+
+**Example**:
+
+```bash
+curl -X POST http://localhost:8080/users/register \
+  -H "Authorization: Bearer {ADMIN_JWT_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "newuser",
+    "password": "securepass123",
+    "email": "newuser@example.com"
+  }'
+```
+
+---
+
+### Password Reset
+
+#### `POST /users/forgot-password`
+
+Initiate password reset process.
+
+**Authentication**: None required (public endpoint)
+
+**Request Body**:
+
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+**Response (200 OK)**:
+
+```json
+{
+  "message": "Password reset token generated. In production, this would be emailed. Token: abc123..."
+}
+```
+
+**Error Responses**:
+
+- `400 Bad Request` - Email not found
+
+**Example**:
+
+```bash
+curl -X POST http://localhost:8080/users/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com"
+  }'
+```
+
+---
+
+#### `POST /users/reset-password`
+
+Reset password using reset token.
+
+**Authentication**: None required (uses reset token)
+
+**Request Body**:
+
+```json
+{
+  "token": "reset-token-from-email",
+  "newPassword": "newSecurePassword123"
+}
+```
+
+**Response (200 OK)**:
+
+```json
+{
+  "message": "Password reset successful"
+}
+```
+
+**Error Responses**:
+
+- `400 Bad Request` - Invalid or expired token
+
+**Example**:
+
+```bash
+curl -X POST http://localhost:8080/users/reset-password \
+  -H "Content-Type: application/json" \
+  -d '{
+    "token": "abc123...",
+    "newPassword": "newPassword123"
+  }'
+```
+
+---
+
+### User Profile
+
+#### `GET /users/{username}`
+
+Get user profile information.
+
+**Roles Required**: Own username or `ADMIN`
+
+**Path Parameters**:
+
+- `username` (String) - Username to retrieve
+
+**Response (200 OK)**:
+
+```json
+{
+  "id": 5,
+  "username": "testuser",
+  "email": "testuser@example.com",
+  "role": "USER",
+  "createdAt": "2026-02-01T10:00:00Z"
+}
+```
+
+**Error Responses**:
+
+- `401 Unauthorized` - No valid JWT token
+- `403 Forbidden` - Attempting to view another user's profile
+- `404 Not Found` - User not found
+
+**Example**:
+
+```bash
+curl -X GET http://localhost:8080/users/testuser \
+  -H "Authorization: Bearer {JWT_TOKEN}"
+```
+
+---
+
+#### `GET /users`
+
+List all users (ADMIN ONLY).
+
+**Roles Required**: `ADMIN` only
+
+**Response (200 OK)**:
+
+```json
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@example.com",
+    "role": "ADMIN",
+    "createdAt": "2026-01-01T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "username": "testuser",
+    "email": "testuser@example.com",
+    "role": "USER",
+    "createdAt": "2026-02-01T10:00:00Z"
+  }
+]
+```
+
+**Error Responses**:
+
+- `401 Unauthorized` - No valid JWT token
+- `403 Forbidden` - USER role attempting to list all users
+
+**Example**:
+
+```bash
+curl -X GET http://localhost:8080/users \
+  -H "Authorization: Bearer {ADMIN_JWT_TOKEN}"
+```
+
+---
+
+## Account Endpoints
+
+All account endpoints require authentication with `USER` or `ADMIN` role.
+
+### My Accounts
+
+#### `GET /accounts`
+
+List all accounts owned by the current authenticated user.
+
+**Roles Required**: `USER`, `ADMIN`
+
+**Response (200 OK)**:
+
+```json
+[
+  {
+    "id": 1001,
+    "accountNumber": "ACC-001",
+    "accountHolder": "John Doe",
+    "balance": 5000.00,
+    "accountType": "CHECKING",
+    "status": "ACTIVE",
+    "createdAt": "2026-02-01T10:00:00Z",
+    "updatedAt": "2026-02-05T15:30:00Z"
+  },
+  {
+    "id": 1002,
+    "accountNumber": "ACC-002",
+    "accountHolder": "John Doe",
+    "balance": 3000.00,
+    "accountType": "SAVINGS",
+    "status": "ACTIVE",
+    "createdAt": "2026-02-02T11:00:00Z",
+    "updatedAt": "2026-02-05T14:20:00Z"
+  }
+]
+```
+
+**Error Responses**:
+
+- `401 Unauthorized` - No valid JWT token
+- `429 Too Many Requests` - Rate limit exceeded (60 reads per minute)
+
+**Rate Limit**: 60 reads per minute per user
+
+**Example**:
+
+```bash
+curl -X GET http://localhost:8080/accounts \
+  -H "Authorization: Bearer {JWT_TOKEN}"
+```
+
+---
+
+#### `POST /accounts`
+
+Create a new account for the current authenticated user.
+
+**Roles Required**: `USER`, `ADMIN`
+
+**Request Body**:
+
+```json
+{
+  "accountNumber": "ACC-003",
+  "accountHolder": "John Doe",
+  "initialBalance": 1000.00,
+  "accountType": "CHECKING"
+}
+```
+
+**Response (201 Created)**:
+
+```json
+{
+  "id": 1003,
+  "accountNumber": "ACC-003",
+  "accountHolder": "John Doe",
+  "balance": 1000.00,
+  "accountType": "CHECKING",
+  "status": "ACTIVE",
+  "createdAt": "2026-02-13T10:30:00Z",
+  "updatedAt": "2026-02-13T10:30:00Z"
+}
+```
+
+**Error Responses**:
+
+- `400 Bad Request` - Account number already exists or invalid input
+- `401 Unauthorized` - No valid JWT token
+
+**Example**:
+
+```bash
+curl -X POST http://localhost:8080/accounts \
+  -H "Authorization: Bearer {JWT_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accountNumber": "ACC-003",
+    "accountHolder": "John Doe",
+    "initialBalance": 1000.00,
+    "accountType": "CHECKING"
+  }'
+```
+
+---
 
 ### Account Information
 
 #### `GET /accounts/{accountId}`
+
 Retrieve account details by ID.
 
 **Roles Required**: `USER`, `ADMIN`
 
 **Path Parameters**:
+
 - `accountId` (Long) - The account ID
 
 **Response (200 OK)**:
+
 ```json
 {
   "id": 1001,
@@ -114,6 +454,7 @@ Retrieve account details by ID.
 ```
 
 **Error Responses**:
+
 - `401 Unauthorized` - No valid JWT token
 - `403 Forbidden` - USER role attempting to access another user's account (future: after ownership checks)
 - `404 Not Found` - Account not found
@@ -121,6 +462,7 @@ Retrieve account details by ID.
 **Rate Limit**: 60 reads per minute per user
 
 **Example**:
+
 ```bash
 curl -X GET http://localhost:8080/accounts/1001 \
   -H "Authorization: Bearer {JWT_TOKEN}"
@@ -129,14 +471,17 @@ curl -X GET http://localhost:8080/accounts/1001 \
 ---
 
 #### `GET /accounts/{accountId}/balance`
+
 Retrieve current account balance.
 
 **Roles Required**: `USER`, `ADMIN`
 
 **Path Parameters**:
+
 - `accountId` (Long) - The account ID
 
 **Response (200 OK)**:
+
 ```json
 {
   "accountId": 1001,
@@ -148,6 +493,7 @@ Retrieve current account balance.
 ```
 
 **Error Responses**:
+
 - `401 Unauthorized` - No valid JWT token
 - `403 Forbidden` - USER role attempting to access another user's account (future: after ownership checks)
 - `404 Not Found` - Account not found
@@ -155,6 +501,7 @@ Retrieve current account balance.
 **Rate Limit**: 60 reads per minute per user
 
 **Example**:
+
 ```bash
 curl -X GET http://localhost:8080/accounts/1001/balance \
   -H "Authorization: Bearer {JWT_TOKEN}"
@@ -163,17 +510,21 @@ curl -X GET http://localhost:8080/accounts/1001/balance \
 ---
 
 #### `GET /accounts/{accountId}/transactions`
+
 Retrieve transaction history for an account.
 
 **Roles Required**: `USER`, `ADMIN`
 
 **Path Parameters**:
+
 - `accountId` (Long) - The account ID
 
 **Query Parameters** (optional):
+
 - None currently implemented
 
 **Response (200 OK)**:
+
 ```json
 [
   {
@@ -206,6 +557,7 @@ Retrieve transaction history for an account.
 ```
 
 **Error Responses**:
+
 - `401 Unauthorized` - No valid JWT token
 - `403 Forbidden` - USER role attempting to access another user's transactions (future: after ownership checks)
 - `404 Not Found` - Account not found
@@ -213,6 +565,7 @@ Retrieve transaction history for an account.
 **Rate Limit**: 60 reads per minute per user
 
 **Example**:
+
 ```bash
 curl -X GET http://localhost:8080/accounts/1001/transactions \
   -H "Authorization: Bearer {JWT_TOKEN}"
@@ -223,11 +576,13 @@ curl -X GET http://localhost:8080/accounts/1001/transactions \
 ### Money Transfers
 
 #### `POST /transfers`
+
 Initiate a money transfer between two accounts with idempotency support.
 
 **Roles Required**: `USER`, `ADMIN`
 
 **Request Body**:
+
 ```json
 {
   "sourceAccountId": 1001,
@@ -238,12 +593,14 @@ Initiate a money transfer between two accounts with idempotency support.
 ```
 
 **Request Field Details**:
+
 - `sourceAccountId` (Long) - Source account ID (required)
 - `destinationAccountId` (Long) - Destination account ID (required)
 - `amount` (BigDecimal) - Transfer amount > 0 (required)
 - `idempotencyKey` (UUID) - Unique UUID for idempotency (required)
 
 **Response (201 Created)**:
+
 ```json
 {
   "transactionId": 245,
@@ -259,6 +616,7 @@ Initiate a money transfer between two accounts with idempotency support.
 ```
 
 **Error Responses**:
+
 - `400 Bad Request` - Invalid input (idempotencyKey must be UUID, amount must be > 0, etc.)
 - `401 Unauthorized` - No valid JWT token
 - `403 Forbidden` - USER role attempting to transfer from account they don't own (future: after ownership checks)
@@ -271,12 +629,14 @@ Initiate a money transfer between two accounts with idempotency support.
 **Idempotency**: If the same `idempotencyKey` is used within 24 hours, the same response is returned without processing the transfer again.
 
 **Transaction Rules**:
+
 - Minimum amount: 0.01
 - Both accounts must exist and be ACTIVE
 - Source account must have sufficient balance
 - Transfer is atomic (both debit and credit succeed or both fail)
 
 **Example**:
+
 ```bash
 curl -X POST http://localhost:8080/transfers \
   -H "Authorization: Bearer {JWT_TOKEN}" \
@@ -294,16 +654,19 @@ curl -X POST http://localhost:8080/transfers \
 ### Health Check (User)
 
 #### `GET /transfers/health`
+
 Health check endpoint for the transfer service.
 
 **Roles Required**: `USER`, `ADMIN`
 
 **Response (200 OK)**:
+
 ```json
 "Transfer service is operational"
 ```
 
 **Example**:
+
 ```bash
 curl -X GET http://localhost:8080/transfers/health \
   -H "Authorization: Bearer {JWT_TOKEN}"
@@ -318,14 +681,17 @@ All ADMIN endpoints require authentication with `ADMIN` role and are accessed vi
 ### Admin Account Information
 
 #### `GET /api/v1/admin/accounts/{accountId}`
+
 Retrieve account details for **any** account (admin access, no ownership restriction).
 
 **Roles Required**: `ADMIN` only
 
 **Path Parameters**:
+
 - `accountId` (Long) - The account ID
 
 **Response (200 OK)**:
+
 ```json
 {
   "id": 1001,
@@ -340,6 +706,7 @@ Retrieve account details for **any** account (admin access, no ownership restric
 ```
 
 **Error Responses**:
+
 - `401 Unauthorized` - No valid JWT token
 - `403 Forbidden` - USER role attempting to access admin endpoint
 - `404 Not Found` - Account not found
@@ -347,6 +714,7 @@ Retrieve account details for **any** account (admin access, no ownership restric
 **Audit Logging**: Admin access is logged with timestamp, admin username, and account ID.
 
 **Example**:
+
 ```bash
 curl -X GET http://localhost:8080/api/v1/admin/accounts/1001 \
   -H "Authorization: Bearer {ADMIN_JWT_TOKEN}"
@@ -355,14 +723,17 @@ curl -X GET http://localhost:8080/api/v1/admin/accounts/1001 \
 ---
 
 #### `GET /api/v1/admin/accounts/{accountId}/balance`
+
 Retrieve account balance for **any** account (admin access, no ownership restriction).
 
 **Roles Required**: `ADMIN` only
 
 **Path Parameters**:
+
 - `accountId` (Long) - The account ID
 
 **Response (200 OK)**:
+
 ```json
 {
   "accountId": 1001,
@@ -374,6 +745,7 @@ Retrieve account balance for **any** account (admin access, no ownership restric
 ```
 
 **Error Responses**:
+
 - `401 Unauthorized` - No valid JWT token
 - `403 Forbidden` - USER role attempting to access admin endpoint
 - `404 Not Found` - Account not found
@@ -381,6 +753,7 @@ Retrieve account balance for **any** account (admin access, no ownership restric
 **Audit Logging**: Admin access is logged with timestamp, admin username, and account ID.
 
 **Example**:
+
 ```bash
 curl -X GET http://localhost:8080/api/v1/admin/accounts/1001/balance \
   -H "Authorization: Bearer {ADMIN_JWT_TOKEN}"
@@ -389,14 +762,17 @@ curl -X GET http://localhost:8080/api/v1/admin/accounts/1001/balance \
 ---
 
 #### `GET /api/v1/admin/accounts/{accountId}/transactions`
+
 Retrieve transaction history for **any** account (admin access, no ownership restriction).
 
 **Roles Required**: `ADMIN` only
 
 **Path Parameters**:
+
 - `accountId` (Long) - The account ID
 
 **Response (200 OK)**:
+
 ```json
 [
   {
@@ -416,6 +792,7 @@ Retrieve transaction history for **any** account (admin access, no ownership res
 ```
 
 **Error Responses**:
+
 - `401 Unauthorized` - No valid JWT token
 - `403 Forbidden` - USER role attempting to access admin endpoint
 - `404 Not Found` - Account not found
@@ -423,6 +800,7 @@ Retrieve transaction history for **any** account (admin access, no ownership res
 **Audit Logging**: Admin access is logged with timestamp, admin username, and account ID.
 
 **Example**:
+
 ```bash
 curl -X GET http://localhost:8080/api/v1/admin/accounts/1001/transactions \
   -H "Authorization: Bearer {ADMIN_JWT_TOKEN}"
@@ -430,23 +808,88 @@ curl -X GET http://localhost:8080/api/v1/admin/accounts/1001/transactions \
 
 ---
 
+### Admin Account Creation
+
+#### `POST /admin/users/{userId}/accounts`
+
+Create a new account for a specific user (ADMIN ONLY).
+
+**Roles Required**: `ADMIN` only
+
+**Path Parameters**:
+
+- `userId` (Long) - The user ID to create account for
+
+**Request Body**:
+
+```json
+{
+  "accountNumber": "ACC-005",
+  "accountHolder": "Jane Smith",
+  "initialBalance": 2000.00,
+  "accountType": "SAVINGS"
+}
+```
+
+**Response (201 Created)**:
+
+```json
+{
+  "id": 1005,
+  "accountNumber": "ACC-005",
+  "accountHolder": "Jane Smith",
+  "balance": 2000.00,
+  "accountType": "SAVINGS",
+  "status": "ACTIVE",
+  "createdAt": "2026-02-13T11:00:00Z",
+  "updatedAt": "2026-02-13T11:00:00Z"
+}
+```
+
+**Error Responses**:
+
+- `400 Bad Request` - User not found or invalid request data
+- `401 Unauthorized` - No valid JWT token
+- `403 Forbidden` - USER role attempting to use admin endpoint
+- `404 Not Found` - User ID not found
+
+**Example**:
+
+```bash
+curl -X POST http://localhost:8080/admin/users/5/accounts \
+  -H "Authorization: Bearer {ADMIN_JWT_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accountNumber": "ACC-005",
+    "accountHolder": "Jane Smith",
+    "initialBalance": 2000.00,
+    "accountType": "SAVINGS"
+  }'
+```
+
+---
+
 ### Admin Health Check
 
 #### `GET /api/v1/admin/health`
+
 Health check endpoint for admin operations.
 
 **Roles Required**: `ADMIN` only
 
 **Response (200 OK)**:
+
 ```
 Admin system operational
 ```
 
 **Error Responses**:
+
 - `401 Unauthorized` - No valid JWT token
 - `403 Forbidden` - USER role attempting to access admin endpoint
 
 **Example**:
+
 ```bash
 curl -X GET http://localhost:8080/api/v1/admin/health \
   -H "Authorization: Bearer {ADMIN_JWT_TOKEN}"
@@ -461,21 +904,25 @@ These endpoints do not require authentication.
 ### Swagger UI
 
 #### `GET /swagger-ui.html`
+
 Swagger UI for interactive API documentation.
 
 **Authentication**: None required
 
 **Example**:
+
 ```bash
 curl http://localhost:8080/swagger-ui.html
 ```
 
 #### `GET /v3/api-docs` or `GET /v3/api-docs.yaml`
+
 OpenAPI 3.0 specification for the API.
 
 **Authentication**: None required
 
 **Example**:
+
 ```bash
 curl http://localhost:8080/v3/api-docs
 ```
@@ -493,6 +940,7 @@ Rate limits are applied per user (based on JWT username) and are enforced indepe
 | Transfer initiation | 10 | per minute |
 
 **Rate Limit Response (429 Too Many Requests)**:
+
 ```json
 {
   "status": "RATE_LIMITED",
@@ -551,6 +999,7 @@ All JWT tokens include:
 ```
 
 **Token Fields**:
+
 - `sub` - Username (subject)
 - `roles` - Array of roles (e.g., `["USER"]`, `["ADMIN"]`)
 - `iss` - Issuer identifier
@@ -577,12 +1026,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsInJvbGVzIjp..
 ### USER Role
 
 **Capabilities**:
+
 - ✅ Initiate money transfers
 - ✅ View own account balance
 - ✅ View own transaction history
 - ✅ Access health check endpoints
 
 **Restrictions**:
+
 - ❌ Cannot access admin endpoints (`/api/v1/admin/**`)
 - ❌ Cannot view other users' accounts (future: after ownership checks)
 - ❌ Cannot bypass transaction limits or rules
@@ -590,6 +1041,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsInJvbGVzIjp..
 ### ADMIN Role
 
 **Capabilities**:
+
 - ✅ View **any** account details (no ownership restriction)
 - ✅ View **any** account balance
 - ✅ View **any** account transaction history
@@ -597,6 +1049,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsInJvbGVzIjp..
 - ✅ Can invoke regular USER endpoints (superset of permissions)
 
 **Restrictions**:
+
 - ❌ Cannot initiate money transfers on behalf of users (no user impersonation)
 - ❌ Cannot bypass transaction rules or limits
 - ❌ Cannot modify account data
@@ -662,8 +1115,8 @@ curl -X GET http://localhost:8080/api/v1/admin/accounts/1001 \
 
 ## Additional Resources
 
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI Spec**: http://localhost:8080/v3/api-docs
+- **Swagger UI**: <http://localhost:8080/swagger-ui.html>
+- **OpenAPI Spec**: <http://localhost:8080/v3/api-docs>
 - **RBAC Documentation**: See [RBAC_IMPLEMENTATION.md](RBAC_IMPLEMENTATION.md)
 - **Rate Limiting Details**: See [RATE_LIMITING_QUICK_REFERENCE.md](RATE_LIMITING_QUICK_REFERENCE.md)
 
@@ -679,5 +1132,45 @@ curl -X GET http://localhost:8080/api/v1/admin/accounts/1001 \
 
 ---
 
-**Last Updated**: February 5, 2026
+**Last Updated**: February 13, 2026  
 **API Version**: 1.0.0
+
+## API Endpoint Summary
+
+### Authentication Endpoints (2)
+
+- `POST /auth/login` - Login and receive JWT token
+- `POST /auth/logout` - Logout and blacklist token
+
+### User Management Endpoints (5)
+
+- `POST /users/register` - Register new user (ADMIN only)
+- `POST /users/forgot-password` - Initiate password reset
+- `POST /users/reset-password` - Reset password with token
+- `GET /users/{username}` - Get user profile
+- `GET /users` - List all users (ADMIN only)
+
+### Account Endpoints (7)
+
+- `GET /accounts` - List my accounts
+- `POST /accounts` - Create new account
+- `GET /accounts/{accountId}` - Get account details
+- `GET /accounts/{accountId}/balance` - Get account balance
+- `GET /accounts/{accountId}/transactions` - Get transaction history
+- `POST /transfers` - Initiate money transfer
+- `GET /transfers/health` - Transfer service health check
+
+### Admin Endpoints (5)
+
+- `GET /admin/accounts/{accountId}` - View any account details
+- `GET /admin/accounts/{accountId}/balance` - View any account balance
+- `GET /admin/accounts/{accountId}/transactions` - View any transaction history
+- `POST /admin/users/{userId}/accounts` - Create account for user
+- `GET /admin/health` - Admin system health check
+
+### Public Endpoints (2)
+
+- `GET /swagger-ui.html` - Swagger UI documentation
+- `GET /v3/api-docs` - OpenAPI specification
+
+**Total**: 21 API endpoints

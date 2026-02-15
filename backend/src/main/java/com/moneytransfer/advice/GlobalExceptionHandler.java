@@ -7,6 +7,7 @@ import com.moneytransfer.domain.exception.DuplicateTransferException;
 import com.moneytransfer.domain.exception.UnauthorizedAccessException;
 import com.moneytransfer.domain.exception.UserNotFoundException;
 import com.moneytransfer.dto.response.ErrorResponse;
+import org.springframework.lang.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -69,6 +70,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * Handles InsufficientBalanceException when account lacks sufficient funds.
+     * Returns 409 Conflict as this is a resource state conflict, not a bad request.
      */
     @ExceptionHandler(InsufficientBalanceException.class)
     public ResponseEntity<ErrorResponse> handleInsufficientBalance(
@@ -76,15 +78,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request) {
         
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(HttpStatus.BAD_REQUEST.value())
-                .code("TRX-400")
+                .status(HttpStatus.CONFLICT.value())
+                .code("TRX-409")
                 .message(ex.getMessage())
                 .error("Insufficient Balance")
                 .timestamp(LocalDateTime.now())
                 .path(request.getDescription(false).replace("uri=", ""))
                 .build();
         
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
     /**
@@ -172,10 +174,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            HttpHeaders headers,
-            HttpStatusCode status,
-            WebRequest request) {
+            @NonNull MethodArgumentNotValidException ex,
+            @NonNull HttpHeaders headers,
+            @NonNull HttpStatusCode status,
+            @NonNull WebRequest request) {
         
         StringBuilder errorMessage = new StringBuilder("Validation failed: ");
         ex.getBindingResult().getAllErrors().forEach(error -> {

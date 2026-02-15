@@ -5,25 +5,36 @@
 ```
 ┌──────────────────────────── PUBLIC ────────────────────────────┐
 │ POST   /auth/login                    - Login (no auth needed)  │
+│ POST   /users/forgot-password         - Password reset request │
+│ POST   /users/reset-password          - Reset with token       │
 │ GET    /swagger-ui.html               - API Documentation      │
 │ GET    /v3/api-docs                   - OpenAPI Spec           │
 └────────────────────────────────────────────────────────────────┘
 
-┌──────────────────────── USER ENDPOINTS (USER/ADMIN) ─────────────────┐
-│ GET    /accounts/{id}                 - Account details               │
-│ GET    /accounts/{id}/balance         - Account balance              │
-│ GET    /accounts/{id}/transactions    - Transaction history          │
-│ POST   /transfers                     - Initiate transfer            │
-│ GET    /transfers/health              - Health check                 │
-└────────────────────────────────────────────────────────────────────┘
+┌──────────────────── AUTHENTICATED ENDPOINTS (USER/ADMIN) ────────────────┐
+│ POST   /auth/logout                   - Logout and blacklist token       │
+│ GET    /accounts                      - List my accounts                 │
+│ POST   /accounts                      - Create new account               │
+│ GET    /accounts/{id}                 - Account details                  │
+│ GET    /accounts/{id}/balance         - Account balance                 │
+│ GET    /accounts/{id}/transactions    - Transaction history             │
+│ POST   /transfers                     - Initiate transfer               │
+│ GET    /transfers/health              - Health check                    │
+│ GET    /users/{username}              - Get user profile                │
+└──────────────────────────────────────────────────────────────────────────┘
 
-┌──────────────────────── ADMIN ENDPOINTS (ADMIN ONLY) ──────────────┐
-│ GET    /api/v1/admin/accounts/{id}                    - Account   │
-│ GET    /api/v1/admin/accounts/{id}/balance           - Balance   │
-│ GET    /api/v1/admin/accounts/{id}/transactions      - History   │
-│ GET    /api/v1/admin/health                          - Health    │
-└─────────────────────────────────────────────────────────────────┘
+┌──────────────────────── ADMIN ENDPOINTS (ADMIN ONLY) ──────────────────┐
+│ POST   /users/register                             - Register new user  │
+│ GET    /users                                      - List all users     │
+│ GET    /admin/accounts/{id}                       - View any account   │
+│ GET    /admin/accounts/{id}/balance              - View any balance   │
+│ GET    /admin/accounts/{id}/transactions         - View any history   │
+│ POST   /admin/users/{userId}/accounts            - Create user account │
+│ GET    /admin/health                              - Admin health check │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Total**: 21 endpoints (5 public + 9 authenticated + 7 admin)
 
 ---
 
@@ -50,8 +61,61 @@ curl -X POST http://localhost:8080/auth/login \
 
 ### Using Token
 ```bash
-curl -X GET http://localhost:8080/accounts/1001 \
+curl -X GET http://localhost:8080/accounts \
   -H "Authorization: Bearer {TOKEN}"
+```
+
+### Logout
+```bash
+curl -X POST http://localhost:8080/auth/logout \
+  -H "Authorization: Bearer {TOKEN}"
+```
+
+---
+
+## User Management
+
+### Register User (ADMIN Only)
+```bash
+curl -X POST http://localhost:8080/users/register \
+  -H "Authorization: Bearer {ADMIN_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "newuser",
+    "password": "password123",
+    "email": "newuser@example.com"
+  }'
+```
+
+### Get User Profile
+```bash
+curl -X GET http://localhost:8080/users/testuser \
+  -H "Authorization: Bearer {TOKEN}"
+```
+
+### List All Users (ADMIN Only)
+```bash
+curl -X GET http://localhost:8080/users \
+  -H "Authorization: Bearer {ADMIN_TOKEN}"
+```
+
+### Forgot Password
+```bash
+curl -X POST http://localhost:8080/users/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com"
+  }'
+```
+
+### Reset Password
+```bash
+curl -X POST http://localhost:8080/users/reset-password \
+  -H "Content-Type: application/json" \
+  -d '{
+    "token": "reset-token-from-email",
+    "newPassword": "newPassword123"
+  }'
 ```
 
 ---
@@ -65,7 +129,26 @@ curl -X GET http://localhost:8080/accounts/1001 \
 
 ---
 
-## GET Endpoints (User Data)
+## Account Endpoints
+
+### List My Accounts
+```
+GET /accounts
+Authorization: Bearer {TOKEN}
+```
+
+### Create Account
+```bash
+curl -X POST http://localhost:8080/accounts \
+  -H "Authorization: Bearer {TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accountNumber": "ACC-003",
+    "accountHolder": "John Doe",
+    "initialBalance": 1000.00,
+    "accountType": "CHECKING"
+  }'
+```
 
 ### Account Details
 ```
@@ -87,7 +170,7 @@ Authorization: Bearer {TOKEN}
 
 ---
 
-## POST Endpoint (Money Transfer)
+## Money Transfers
 
 ### Initiate Transfer
 ```
@@ -135,6 +218,19 @@ Authorization: Bearer {ADMIN_TOKEN}
 ```
 GET /api/v1/admin/accounts/{accountId}/transactions
 Authorization: Bearer {ADMIN_TOKEN}
+```
+
+### Create Account for User (ADMIN Only)
+```bash
+curl -X POST http://localhost:8080/admin/users/5/accounts \
+  -H "Authorization: Bearer {ADMIN_TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "accountNumber": "ACC-005",
+    "accountHolder": "Jane Smith",
+    "initialBalance": 2000.00,
+    "accountType": "SAVINGS"
+  }'
 ```
 
 ---
@@ -191,13 +287,18 @@ Authorization: Bearer {ADMIN_TOKEN}
 
 ### USER
 - ✅ View own accounts
+- ✅ Create own accounts
 - ✅ Initiate transfers
-- ❌ Cannot access `/api/v1/admin/**`
+- ✅ View own profile
+- ❌ Cannot access admin endpoints
+- ❌ Cannot view other users
 
 ### ADMIN
 - ✅ View any account
-- ✅ View transfers
-- ❌ Cannot transfer money
+- ✅ Create accounts for users
+- ✅ View all users
+- ✅ Register new users
+- ❌ Cannot transfer money (no user impersonation)
 
 ---
 
@@ -217,11 +318,12 @@ Authorization: Bearer {ADMIN_TOKEN}
 
 ---
 
-## Useful Links
+## Useful Links../SECURITY/RBAC_IMPLEMENTATION.md](../SECURITY/RBAC_IMPLEMENTATION.md)
+- **User Management**: [../SECURITY/USER_MANAGEMENT_QUICK_REFERENCE.md](../SECURITY/USER_MANAGEMENT_QUICK_REFERENCE.md)
 
-- **Full Documentation**: [API_ENDPOINTS.md](API_ENDPOINTS.md)
-- **Interactive Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI Spec**: http://localhost:8080/v3/api-docs
+---
+
+*Last Updated: February 13//localhost:8080/v3/api-docs
 - **RBAC Guide**: [RBAC_IMPLEMENTATION.md](RBAC_IMPLEMENTATION.md)
 
 ---

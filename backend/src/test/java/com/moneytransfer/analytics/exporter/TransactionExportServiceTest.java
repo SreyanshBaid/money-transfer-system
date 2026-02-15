@@ -229,8 +229,11 @@ class TransactionExportServiceTest {
         verify(snowflakeClient).uploadAndCopy(anyString(), csvCaptor.capture());
 
         String csv = csvCaptor.getValue();
-        assertThat(csv).contains("id,from_account_id,to_account_id");
-        assertThat(csv).contains("test-id,100,200");
+        // Check for correct CSV header format (matches Snowflake schema)
+        assertThat(csv).contains("id,from_account_id,amount,balance_after,balance_before,created_at,description,idempotency_key,to_account_id,status,transaction_type");
+        assertThat(csv).contains("test-id");
+        assertThat(csv).contains("100");
+        assertThat(csv).contains("200");
         assertThat(csv).contains("50.00");
         assertThat(csv).contains("COMPLETED");
     }

@@ -74,14 +74,13 @@ public class TransferController {
     }
 
     /**
-     * Health check endpoint.
+     * Health check endpoint to verify the service is running.
      * 
-     * @return Simple status response
+     * @return Health status message
      */
     @GetMapping("/health")
-    @Operation(summary = "Health check", description = "Verify service is running")
+    @Operation(summary = "Health check", description = "Check if the money transfer service is running")
     @ApiResponse(responseCode = "200", description = "Service is running")
-    @SecurityRequirement(name = "Bearer")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Money Transfer System is running");
     }

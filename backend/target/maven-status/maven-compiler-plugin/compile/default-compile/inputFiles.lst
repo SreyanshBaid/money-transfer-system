@@ -54,6 +54,7 @@
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/analytics/repository/AnalyticsExportStateRepository.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/domain/entity/Account.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/domain/entity/TransactionLog.java
+/home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/dto/response/ApiResponse.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/domain/exception/UserNotFoundException.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/controller/AccountController.java
 /home/yash/money-transfer-system/backend/src/main/java/com/moneytransfer/config/JwtProperties.java

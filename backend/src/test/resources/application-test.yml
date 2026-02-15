@@ -1,6 +1,30 @@
 # Test Configuration
-# Disables analytics export for integration tests
+# Uses in-memory H2 database to isolate tests from production data
 
+spring:
+  # In-memory H2 database for tests
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DATABASE_TO_LOWER=TRUE;CASE_INSENSITIVE_IDENTIFIERS=TRUE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+  
+  # Disable Flyway for tests - use Hibernate to create schema
+  flyway:
+    enabled: false
+  
+  # JPA configuration for H2 - let Hibernate create schema from entities
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true
+    show-sql: false
+    defer-datasource-initialization: false
+
+# Analytics disabled for tests
 analytics:
   export:
     enabled: false
@@ -12,3 +36,11 @@ analytics:
     schema: test
     warehouse: test
     stage: test
+
+# Logging for tests
+logging:
+  level:
+    root: INFO
+    com.moneytransfer: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: DEBUG

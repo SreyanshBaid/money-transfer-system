@@ -2,7 +2,6 @@ package com.moneytransfer.controller;
 
 import com.moneytransfer.dto.response.AccountBalanceResponse;
 import com.moneytransfer.dto.response.AccountResponse;
-import com.moneytransfer.dto.response.TransactionLogResponse;
 import com.moneytransfer.dto.request.CreateAccountRequest;
 import com.moneytransfer.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,13 +10,12 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
-
-import java.util.List;
 
 /**
  * AdminController: Admin-only endpoints for operational and support functions.
@@ -40,7 +38,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/admin")
+@RequestMapping("/admin")
 @RequiredArgsConstructor
 @Tag(name = "Admin", description = "Administrative operations (ADMIN role required)")
 public class AdminController {
@@ -67,7 +65,9 @@ public class AdminController {
     public ResponseEntity<AccountBalanceResponse> getAccountBalance(@PathVariable Long accountId) {
         log.info("[ADMIN] Viewing balance for account: {}", accountId);
         AccountBalanceResponse balance = accountService.getAccountBalanceAdmin(accountId);
-        return ResponseEntity.ok(balance);
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(30, java.util.concurrent.TimeUnit.SECONDS))
+                .body(balance);
     }
 
     /**

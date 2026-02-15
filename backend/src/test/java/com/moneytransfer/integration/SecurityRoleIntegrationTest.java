@@ -144,19 +144,19 @@ public class SecurityRoleIntegrationTest {
         String adminToken = jwtUtil.generateToken("admin", List.of("ADMIN"));
 
         // ADMIN can access any account balance
-        mockMvc.perform(get("/api/v1/admin/accounts/{accountId}/balance", ACCOUNT_1)
+        mockMvc.perform(get("/admin/accounts/{accountId}/balance", ACCOUNT_1)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountId").value(ACCOUNT_1));
 
         // ADMIN can access any account details
-        mockMvc.perform(get("/api/v1/admin/accounts/{accountId}", ACCOUNT_1)
+        mockMvc.perform(get("/admin/accounts/{accountId}", ACCOUNT_1)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(ACCOUNT_1));
 
         // ADMIN can access any account's transaction history
-        mockMvc.perform(get("/api/v1/admin/accounts/{accountId}/transactions", ACCOUNT_1)
+        mockMvc.perform(get("/admin/accounts/{accountId}/transactions", ACCOUNT_1)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk());
     }
@@ -171,12 +171,12 @@ public class SecurityRoleIntegrationTest {
         String adminToken = jwtUtil.generateToken("admin", List.of("ADMIN"));
 
         // Access account 1
-        mockMvc.perform(get("/api/v1/admin/accounts/{accountId}/balance", ACCOUNT_1)
+        mockMvc.perform(get("/admin/accounts/{accountId}/balance", ACCOUNT_1)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk());
 
         // Access account 2 (different account, same admin)
-        mockMvc.perform(get("/api/v1/admin/accounts/{accountId}/balance", ACCOUNT_2)
+        mockMvc.perform(get("/admin/accounts/{accountId}/balance", ACCOUNT_2)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk());
     }

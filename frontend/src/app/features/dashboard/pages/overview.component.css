@@ -1,6 +1,11 @@
 .dashboard-container {
   min-height: 100vh;
-  background: #f5f7fa;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15)),
+    image('public/assets/app-background.png');
+  
+  background-repeat: repeat;
+  
 }
 
 .dashboard-header {

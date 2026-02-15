@@ -84,6 +84,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- H2 Database for Tests (In-Memory) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Lombok for Code Generation -->
         <dependency>
             <groupId>org.projectlombok</groupId>

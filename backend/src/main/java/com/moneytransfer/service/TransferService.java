@@ -83,7 +83,17 @@ public class TransferService {
                 request.getSourceAccountId(), request.getDestinationAccountId(),
                 request.getAmount(), request.getIdempotencyKey());
 
-        // Step 0: Validate ownership - user must own the source account
+        // Step 0a: Validate accounts are different (before fetching from DB)
+        if (request.getSourceAccountId().equals(request.getDestinationAccountId())) {
+            throw new IllegalArgumentException("Cannot transfer to the same account");
+        }
+
+        // Step 0b: Validate amount
+        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Transfer amount must be greater than zero");
+        }
+
+        // Step 0c: Validate ownership - user must own the source account
         // Admins bypass this check automatically
         ownershipService.validateTransferOwnership(
             request.getSourceAccountId(), 
@@ -110,7 +120,7 @@ public class TransferService {
                 .orElseThrow(() -> new AccountNotFoundException(
                         "Destination account not found: " + request.getDestinationAccountId()));
 
-        // Step 3: Validate transfer request with loaded accounts
+        // Step 3: Validate transfer request with loaded accounts (account status checks)
         validateTransferRequest(request, sourceAccount, destinationAccount);
 
         // Step 4: Debit from source account (includes balance validation - TRX-400)
@@ -196,8 +206,8 @@ public class TransferService {
      * Validates the transfer request against all transfer rules.
      * 
      * Rules enforced:
-     * 1. Accounts must be different (VAL-422)
-     * 2. Amount must be > 0 (VAL-422)
+     * 1. Accounts must be different (VAL-422) - checked before calling method
+     * 2. Amount must be > 0 (VAL-422) - checked before calling method
      * 3. Source account must exist (ACC-404) - checked before calling method
      * 4. Destination account must exist (ACC-404) - checked before calling method
      * 5. Source account must be ACTIVE (ACC-403)
@@ -210,20 +220,9 @@ public class TransferService {
      * @param request Transfer request to validate
      * @param sourceAccount Source account (must already be loaded)
      * @param destinationAccount Destination account (must already be loaded)
-     * @throws IllegalArgumentException if accounts are same or amount invalid (VAL-422)
      * @throws AccountNotActiveException if either account is not active (ACC-403)
      */
     private void validateTransferRequest(TransferRequest request, Account sourceAccount, Account destinationAccount) {
-        // Rule 1: Accounts must be different (VAL-422)
-        if (request.getSourceAccountId().equals(request.getDestinationAccountId())) {
-            throw new IllegalArgumentException("Cannot transfer to the same account");
-        }
-
-        // Rule 6: Amount must be > 0 (VAL-422)
-        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Transfer amount must be greater than zero");
-        }
-
         // Rule 4: Source account must be ACTIVE (ACC-403)
         if (!sourceAccount.isActive()) {
             throw new AccountNotActiveException(
