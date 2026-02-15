@@ -178,8 +178,8 @@
 .accounts-cards {
   display: flex;
   gap: 20px;
-  margin-bottom: 10px;
-  padding-right: 20px;
+  padding-right: 5vw;
+  padding-left: 5vw;
 }
 
 /* Account Card */
