@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { switchMap, takeUntil, tap, finalize, shareReplay } from 'rxjs/operators';
 import { AccountService, AccountCardViewModel } from '../services/account.service';
@@ -13,7 +13,7 @@ import { CombineBalancePipe } from '../../../shared/pipes';
 @Component({
   selector: 'app-overview',
   standalone: true,
-  imports: [CommonModule, CombineBalancePipe],
+  imports: [CommonModule, NgIf, CombineBalancePipe],
   templateUrl: './overview.component.html',
   styleUrls: ['./overview.component.css']
 })

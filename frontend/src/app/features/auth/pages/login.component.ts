@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -23,7 +23,9 @@ export class LoginComponent implements OnInit {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -33,8 +35,8 @@ export class LoginComponent implements OnInit {
 
   private initializeForm(): void {
     this.loginForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
+      password: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(20)]]
     });
   }
 
@@ -56,11 +58,31 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(credentials).subscribe({
       next: () => {
-        this.router.navigateByUrl(this.returnUrl);
+        this.ngZone.run(() => {
+          console.log('Login success, setting loading to false');
+          this.loading = false;
+          this.cdr.detectChanges();
+          this.router.navigateByUrl(this.returnUrl);
+        });
       },
       error: (err) => {
-        this.error = err.message || 'Login failed. Please try again.';
-        this.loading = false;
+        this.ngZone.run(() => {
+          console.error('Login error:', err);
+          console.log('Setting loading to false, current value:', this.loading);
+          if (err.status === 401) {
+            this.error = 'Wrong credentials! Please try again.';
+          } else {
+            this.error = err.message || 'Login failed. Please try again.';
+          }
+          this.loading = false;
+          console.log('Loading set to false, new value:', this.loading);
+          console.log('Error message set to:', this.error);
+          this.cdr.detectChanges();
+          console.log('Change detection triggered manually');
+        });
+      },
+      complete: () => {
+        console.log('Login request completed');
       }
     });
   }

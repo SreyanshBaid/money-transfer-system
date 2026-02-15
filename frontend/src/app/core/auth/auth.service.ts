@@ -31,10 +31,12 @@ export class AuthService {
 
   // Performs login with username and password
   login(credentials: LoginRequest): Observable<LoginResponse> {
+    console.log('AuthService: Starting login request');
     this.updateState({ loading: true, error: null });
     
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
+        console.log('AuthService: Login successful');
         this.tokenService.setToken(response.token);
         this.tokenService.setUser(response.user);
         this.updateState({
@@ -45,7 +47,10 @@ export class AuthService {
           error: null
         });
       }),
-      catchError(error => this.handleError(error))
+      catchError(error => {
+        console.error('AuthService: Login error', error);
+        return this.handleError(error);
+      })
     );
   }
 
@@ -92,6 +97,7 @@ export class AuthService {
   }
 
   private handleError(error: HttpErrorResponse) {
+    console.log('AuthService handleError:', { status: error.status, error });
     let errorMessage = 'An error occurred';
     
     if (error.error instanceof ErrorEvent) {
@@ -106,7 +112,13 @@ export class AuthService {
       isAuthenticated: false 
     });
 
-    return throwError(() => new Error(errorMessage));
+    const errorObj = {
+      message: errorMessage,
+      status: error.status
+    };
+    console.log('AuthService throwing error:', errorObj);
+
+    return throwError(() => errorObj);
   }
 
   private loadStoredUser(): void {

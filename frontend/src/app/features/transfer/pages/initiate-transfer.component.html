@@ -13,8 +13,8 @@
     </div>
 
     <!-- Error Alert -->
-    <div *ngIf="error" class="alert alert-error">
-      <strong>Error:</strong> {{ error }}
+    <div *ngIf="error || errorCode" class="alert alert-error">
+      <strong>Error</strong><span *ngIf="errorCode"> ({{ errorCode }})</span><strong>:</strong> {{ error }}
     </div>
 
     <!-- Transfer Form -->
@@ -42,17 +42,20 @@
           <span class="currency-symbol">$</span>
           <input
             formControlName="amount"
-            type="number"
+            type="text"
             id="amount"
             class="form-control"
             placeholder="0.00"
             step="0.01"
-            [class.is-invalid]="submitted && f['amount'].errors"
+            inputmode="decimal"
+            pattern="^\d+(\.\d+)?$"
+            [class.is-invalid]="f['amount'].invalid && (f['amount'].dirty || f['amount'].touched)"
           />
         </div>
-        <div *ngIf="submitted && f['amount'].errors" class="invalid-feedback">
-          <div *ngIf="f['amount'].errors['required']">Amount is required</div>
-          <div *ngIf="f['amount'].errors['min']">Amount must be greater than 0</div>
+        <div *ngIf="f['amount'].invalid && (f['amount'].dirty || f['amount'].touched)" class="invalid-feedback">
+          <div *ngIf="f['amount'].errors?.['required']">Amount is required</div>
+          <div *ngIf="f['amount'].errors?.['min']">Amount must be greater than 0</div>
+          <div *ngIf="f['amount'].errors?.['pattern']">Amount must be a valid number</div>
         </div>
       </div>
 
