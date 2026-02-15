@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, tap, switchMap } from 'rxjs/operators';
+import { catchError, tap, switchMap, map, shareReplay } from 'rxjs/operators';
 import { TokenService } from './token.service';
 import { LoginRequest, LoginResponse, User, AuthState } from './auth.models';
 
@@ -64,10 +64,7 @@ export class AuthService {
   // Checks if user is currently authenticated
   isAuthenticated(): Observable<boolean> {
     return this.auth$.pipe(
-      switchMap(state => new Observable<boolean>(obs => {
-        obs.next(state.isAuthenticated);
-        obs.complete();
-      }))
+      map(state => state.isAuthenticated)
     );
   }
 
@@ -79,10 +76,7 @@ export class AuthService {
   // Gets current user
   getCurrentUser(): Observable<User | null> {
     return this.auth$.pipe(
-      switchMap(state => new Observable<User | null>(obs => {
-        obs.next(state.user);
-        obs.complete();
-      }))
+      map(state => state.user)
     );
   }
 

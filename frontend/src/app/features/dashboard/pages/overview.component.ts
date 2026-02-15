@@ -40,12 +40,25 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router
   ) {
+    console.log('🔍 OverviewComponent: Constructor - Initializing...');
+    
     // Initialize user observable from auth service
     this.user$ = this.authService.getCurrentUser();
+    
+    // Debug: Log user data
+    this.user$.subscribe(user => {
+      console.log('👤 Greeting: User data received:', user);
+      if (!user) {
+        console.warn('⚠️ User is NULL - greeting will show "Hi Guest!"');
+      } else {
+        console.log('✅ User found:', { username: user.username, email: user.email });
+      }
+    });
     
     // Initialize accounts observable - fetches accounts and their balances
     // shareReplay ensures observable executes only once even with multiple subscribers
     this.accounts$ = this.authService.getAuthState().pipe(
+      tap(state => console.log('📊 Auth state:', state)),
       switchMap(authState => {
         if (authState.isAuthenticated) {
           this.isLoadingSubject$.next(true);
@@ -127,9 +140,11 @@ export class OverviewComponent implements OnInit, OnDestroy {
   getUserInitials(user: User): string {
     if (!user || !user.username) return '?';
     const names = user.username.split(' ');
+    console.log('User:', user);
     if (names.length >= 2) {
       return (names[0][0] + names[1][0]).toUpperCase();
     }
+    console.log('User with no full name:', user);
     return user.username.substring(0, 2).toUpperCase();
   }
 

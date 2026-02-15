@@ -498,6 +498,12 @@
   margin-right: auto;
 }
 
+.profile-avatar-with-greeting {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .profile-avatar {
   cursor: pointer;
   transition: transform 0.2s;
@@ -518,6 +524,7 @@
   border: 2px solid white;
   transition: all 0.3s;
   overflow: hidden;
+  position: relative;
 }
 
 .avatar-image {
@@ -538,6 +545,31 @@
   font-size: 14px;
   -webkit-user-select: none;
   user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+}
+
+.avatar-greeting {
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  display: inline-block;
+  line-height: 1;
+}
+
+.greeting-wrapper {
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+.avatar-greeting:hover {
+  opacity: 0.9;
 }
 
 /* Profile Dropdown */

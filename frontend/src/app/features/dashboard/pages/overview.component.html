@@ -4,10 +4,21 @@
     <div class="header-content">
       <!-- Profile Avatar with Dropdown -->
       <div class="profile-section">
-        <div class="profile-avatar" (click)="toggleProfileDropdown()" title="View profile">
-          <div class="avatar-circle">
-            <img src="assets/profile.png" alt="Profile Avatar" class="avatar-image">
+        <div class="profile-avatar-with-greeting">
+          <div class="profile-avatar" (click)="toggleProfileDropdown()" title="View profile">
+            <div class="avatar-circle">
+              <img src="assets/profile.png" alt="Profile Avatar" class="avatar-image" onerror="this.style.display='none'">
+              <span class="avatar-initials" *ngIf="user$ | async as user" [style.display]="'flex'">{{ getUserInitials(user) }}</span>
+            </div>
           </div>
+          <ng-container *ngIf="accounts$ | async as accounts">
+            <div class="greeting-wrapper" *ngIf="accounts.length > 0">
+              <span class="avatar-greeting">Hi {{ accounts[0].accountHolder }}!</span>
+            </div>
+            <div class="greeting-wrapper" *ngIf="accounts.length === 0">
+              <span class="avatar-greeting">Hi Guest!</span>
+            </div>
+          </ng-container>
         </div>
         
         <!-- Profile Dropdown -->

@@ -1,10 +1,10 @@
 .history-container {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: linear-gradient(135deg, rgba(0, 53, 102, 0.08), rgba(255, 195, 0, 0.12)), #f5f7fa;
 }
 
 .history-header {
-  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--ink-black) 100%);
+  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--regal-navy) 75%, var(--school-bus-yellow) 100%);
   color: white;
   padding: 20px;
   display: flex;
@@ -46,8 +46,9 @@
 }
 
 .btn-refresh:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 0 0 2px rgba(255, 195, 0, 0.25);
 }
 
 .btn-refresh:disabled {
@@ -56,8 +57,9 @@
 }
 
 .btn-back:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 0 0 2px rgba(255, 195, 0, 0.25);
 }
 
 .history-content {
@@ -99,6 +101,7 @@
   overflow-x: auto;
   overflow-y: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border-top: 3px solid var(--school-bus-yellow);
   animation: fadeIn 0.3s ease-in;
 }
 
@@ -120,15 +123,15 @@
 }
 
 .transactions-table thead {
-  background: #f9f9f9;
-  border-bottom: 2px solid #eee;
+  background: linear-gradient(90deg, rgba(0, 53, 102, 0.06), rgba(255, 195, 0, 0.12));
+  border-bottom: 2px solid rgba(255, 195, 0, 0.45);
 }
 
 .transactions-table th {
   padding: 16px;
   text-align: left;
   font-weight: 600;
-  color: #333;
+  color: var(--prussian-blue);
   font-size: 14px;
 }
 
@@ -138,7 +141,7 @@
 }
 
 .transactions-table tbody tr:hover {
-  background-color: #f5f7fa;
+  background-color: rgba(0, 53, 102, 0.06);
 }
 
 .transactions-table td {
@@ -266,6 +269,7 @@
   background: var(--prussian-blue);
   color: white;
   border-color: var(--prussian-blue);
+  box-shadow: 0 0 0 2px rgba(255, 195, 0, 0.2);
 }
 
 .btn-pagination:disabled {
@@ -291,8 +295,8 @@
 }
 
 .btn-page-number:hover:not(:disabled):not(.active) {
-  background: #f5f7fa;
-  border-color: #999;
+  background: rgba(0, 53, 102, 0.08);
+  border-color: var(--regal-navy);
 }
 
 .btn-page-number.active {
@@ -300,6 +304,7 @@
   color: white;
   border-color: var(--prussian-blue);
   font-weight: 600;
+  box-shadow: 0 0 0 2px rgba(255, 195, 0, 0.25);
 }
 
 .btn-page-number:disabled {

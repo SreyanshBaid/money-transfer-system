@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--ink-black) 100%);
+  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--regal-navy) 70%, var(--school-bus-yellow) 100%);
 }
 
 .login-card {
@@ -13,19 +13,20 @@
   padding: 40px;
   width: 100%;
   max-width: 400px;
+  border-top: 4px solid var(--school-bus-yellow);
 }
 
 .login-card h1 {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 8px;
-  color: #333;
+  color: var(--prussian-blue);
   text-align: center;
 }
 
 .login-card h2 {
   font-size: 18px;
-  color: #666;
+  color: var(--regal-navy);
   text-align: center;
   margin-bottom: 30px;
 }
@@ -53,7 +54,7 @@
 .form-group input:focus {
   outline: none;
   border-color: var(--regal-navy);
-  box-shadow: 0 0 0 3px rgba(0, 53, 102, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 53, 102, 0.1), 0 0 0 6px rgba(255, 195, 0, 0.12);
 }
 
 .form-group input.is-invalid {
@@ -111,13 +112,13 @@
 .demo-hint {
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid rgba(0, 53, 102, 0.15);
   font-size: 12px;
-  color: #666;
+  color: #5a6b7a;
 }
 
 .demo-hint code {
-  background-color: #f4f4f4;
+  background-color: rgba(255, 195, 0, 0.2);
   padding: 2px 6px;
   border-radius: 3px;
   font-family: 'Courier New', monospace;
