@@ -84,6 +84,26 @@ public class SecurityRoleIntegrationTest {
                         .role(UserRole.USER)
                         .enabled(true)
                         .build()));
+
+        // Create or update admin user for tests
+        userRepository.findByUsername("admin")
+                .ifPresentOrElse(
+                        user -> {
+                            // Admin already exists, ensure it has ADMIN role
+                            if (!user.isAdmin()) {
+                                user.setRole(UserRole.ADMIN);
+                                userRepository.save(user);
+                            }
+                        },
+                        () -> userRepository.save(User.builder()
+                                .username("admin")
+                                .password("password")
+                                .email("admin@example.com")
+                                .fullName("Admin User")
+                                .role(UserRole.ADMIN)
+                                .enabled(true)
+                                .build())
+                );
         
         // Create test account 1
         Account account1 = Account.builder()
