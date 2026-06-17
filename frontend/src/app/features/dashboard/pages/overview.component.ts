@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { CommonModule, NgIf } from '@angular/common';
-import { Observable, Subject, BehaviorSubject } from 'rxjs';
+import { Observable, Subject, BehaviorSubject, filter } from 'rxjs';
 import { switchMap, takeUntil, tap, finalize, shareReplay } from 'rxjs/operators';
 import { AccountService, AccountCardViewModel } from '../services/account.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { User } from '../../../core/auth/auth.models';
+import { RewardService, RewardSummary } from '../../rewards/services/reward.service';
+import { RewardPointsWidgetComponent } from '../../rewards/components/reward-points-widget.component';
 import { CombineBalancePipe } from '../../../shared/pipes';
 
 // OverviewComponent fetches user profile and all accounts with balances
@@ -13,7 +15,7 @@ import { CombineBalancePipe } from '../../../shared/pipes';
 @Component({
   selector: 'app-overview',
   standalone: true,
-  imports: [CommonModule, NgIf, CombineBalancePipe],
+  imports: [CommonModule, NgIf, RewardPointsWidgetComponent, CombineBalancePipe],
   templateUrl: './overview.component.html',
   styleUrls: ['./overview.component.css']
 })
@@ -33,11 +35,21 @@ export class OverviewComponent implements OnInit, OnDestroy {
   showProfileDropdown = false;
   selectedAccount: AccountCardViewModel | null = null;
 
+  // Reward summary - default with 0 points so badge always visible
+  rewardSummary: RewardSummary = {
+    userId: 0,
+    username: '',
+    totalPoints: 0,
+    totalRewards: 0,
+    recentRewards: []
+  };
+
   private destroy$ = new Subject<void>();
 
   constructor(
     private accountService: AccountService,
     private authService: AuthService,
+    private rewardService: RewardService,
     private router: Router
   ) {
     console.log('🔍 OverviewComponent: Constructor - Initializing...');
@@ -106,6 +118,34 @@ export class OverviewComponent implements OnInit, OnDestroy {
         }
       });
     }
+
+    // Load reward summary
+    this.loadRewardSummary();
+
+    // Auto-refresh reward summary when navigating back from transfer page
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.loadRewardSummary();
+    });
+  }
+
+  loadRewardSummary(): void {
+    this.rewardService.getRewardSummary().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (summary) => {
+        this.rewardSummary = summary;
+      },
+      error: () => {
+        // Keep default 0-point summary on failure
+      }
+    });
+  }
+
+  navigateToRewards(): void {
+    this.router.navigate(['/rewards']);
   }
 
   ngOnDestroy(): void {

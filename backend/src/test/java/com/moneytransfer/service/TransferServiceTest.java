@@ -7,6 +7,7 @@ import com.moneytransfer.domain.status.TransactionStatus;
 import com.moneytransfer.dto.request.TransferRequest;
 import com.moneytransfer.dto.response.TransferResponse;
 import com.moneytransfer.repository.AccountRepository;
+import com.moneytransfer.repository.RewardRepository;
 import com.moneytransfer.repository.TransactionLogRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -185,6 +186,9 @@ class TransferServiceTest {
 
         @Mock
         private OwnershipService ownershipService;
+
+    @Mock(strictness = Mock.Strictness.LENIENT)
+    private RewardService rewardService;
 
     @InjectMocks
     private TransferService transferService;

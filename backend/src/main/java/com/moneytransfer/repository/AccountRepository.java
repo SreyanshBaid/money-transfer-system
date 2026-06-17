@@ -51,4 +51,14 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
      * @return true if account exists, false otherwise
      */
     boolean existsByAccountNumber(String accountNumber);
+
+    /**
+     * Find account by ID with owner eagerly fetched.
+     * Needed in RewardService to avoid lazy-loading issues within the same transaction.
+     *
+     * @param id the account ID
+     * @return Optional containing the account with owner loaded
+     */
+    @Query("SELECT a FROM Account a LEFT JOIN FETCH a.owner WHERE a.id = :id")
+    Optional<Account> findByIdWithOwner(@Param("id") Long id);
 }

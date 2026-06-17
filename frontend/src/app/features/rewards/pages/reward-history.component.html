@@ -1,0 +1,60 @@
+<div class="reward-container">
+  <div class="reward-card">
+    <div class="card-header">
+      <h1>Rewards</h1>
+      <p>Your reward points earned from eligible transactions</p>
+    </div>
+
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading your rewards...</p>
+    </div>
+
+    <div *ngIf="error" class="alert alert-error">
+      <strong>Error:</strong> {{ error }}
+      <button class="btn btn-small" (click)="loadRewards()">Retry</button>
+    </div>
+
+    <ng-container *ngIf="!loading && !error">
+      <div class="reward-summary">
+        <div class="summary-stat">
+          <span class="stat-label">Total Points</span>
+          <span class="stat-value points-value">{{ totalPoints }}</span>
+        </div>
+        <div class="summary-stat">
+          <span class="stat-label">Total Rewards</span>
+          <span class="stat-value">{{ totalRewards }}</span>
+        </div>
+      </div>
+
+      <div *ngIf="rewards.length === 0" class="empty-state">
+        <p>No rewards yet. Make eligible transfers to earn reward points!</p>
+      </div>
+
+      <div *ngIf="rewards.length > 0" class="reward-table-wrapper">
+        <table class="reward-table">
+          <thead>
+            <tr>
+              <th>Points</th>
+              <th>Reason</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reward of rewards; trackBy: trackByRewardId">
+              <td class="points-cell">
+                <span class="points-badge">+{{ reward.points }}</span>
+              </td>
+              <td class="reason-cell">{{ reward.reason }}</td>
+              <td class="date-cell">{{ reward.createdAt | date: 'medium' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+
+    <div class="card-footer">
+      <button class="btn btn-secondary" (click)="goBack()">Back to Dashboard</button>
+    </div>
+  </div>
+</div>

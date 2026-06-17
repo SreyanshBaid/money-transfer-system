@@ -2,6 +2,7 @@ com\moneytransfer\dto\request\LoginRequest.class
 com\moneytransfer\config\SecurityConfig.class
 com\moneytransfer\dto\response\ApiResponse$ResponseMetadata.class
 com\moneytransfer\util\JwtUtil.class
+com\moneytransfer\dto\response\RewardResponse$RewardResponseBuilder.class
 com\moneytransfer\repository\TransactionLogRepository.class
 com\moneytransfer\analytics\model\AnalyticsExportState.class
 com\moneytransfer\repository\AccountRepository.class
@@ -11,6 +12,7 @@ com\moneytransfer\domain\exception\AccountNotFoundException.class
 com\moneytransfer\domain\exception\InsufficientBalanceException.class
 com\moneytransfer\dto\response\ApiResponse$ApiResponseBuilder.class
 com\moneytransfer\dto\response\AccountBalanceResponse.class
+com\moneytransfer\dto\response\RewardResponse.class
 com\moneytransfer\dto\request\LoginRequest$LoginRequestBuilder.class
 com\moneytransfer\domain\exception\UserNotFoundException.class
 com\moneytransfer\dto\request\TransferRequest$TransferRequestBuilder.class
@@ -24,6 +26,7 @@ com\moneytransfer\dto\response\TransferResponse$TransferResponseBuilder.class
 com\moneytransfer\analytics\config\SnowflakeProperties.class
 com\moneytransfer\dto\response\LogoutResponse.class
 com\moneytransfer\dto\request\TransferRequest.class
+com\moneytransfer\dto\response\RewardSummaryResponse$RewardSummaryResponseBuilder.class
 com\moneytransfer\service\TokenBlacklistService.class
 com\moneytransfer\security\CustomUserDetailsService.class
 com\moneytransfer\config\SecurityUserProperties.class
@@ -31,6 +34,7 @@ com\moneytransfer\service\AccountService.class
 com\moneytransfer\service\TransferService.class
 com\moneytransfer\domain\exception\UnauthorizedAccessException.class
 com\moneytransfer\dto\response\PaginatedResponse.class
+com\moneytransfer\service\RewardService.class
 com\moneytransfer\dto\request\CreateAccountRequest$CreateAccountRequestBuilder.class
 com\moneytransfer\domain\entity\UserRole.class
 com\moneytransfer\controller\AdminController.class
@@ -44,6 +48,7 @@ com\moneytransfer\dto\response\LoginResponse$LoginResponseBuilder.class
 com\moneytransfer\service\UserService.class
 com\moneytransfer\dto\response\AccountResponse.class
 com\moneytransfer\domain\Role.class
+com\moneytransfer\domain\entity\Reward$RewardBuilder.class
 com\moneytransfer\domain\entity\User.class
 com\moneytransfer\controller\TransferController.class
 com\moneytransfer\analytics\scheduler\AnalyticsExportJob.class
@@ -58,6 +63,7 @@ com\moneytransfer\domain\exception\AccountNotActiveException.class
 com\moneytransfer\dto\response\PaginatedResponse$PaginatedResponseBuilder.class
 com\moneytransfer\security\JwtAuthenticationFilter.class
 com\moneytransfer\controller\AccountController.class
+com\moneytransfer\repository\RewardRepository.class
 com\moneytransfer\dto\response\ErrorResponse.class
 com\moneytransfer\dto\request\ForgotPasswordRequest$ForgotPasswordRequestBuilder.class
 com\moneytransfer\config\WebConfig.class
@@ -76,9 +82,12 @@ com\moneytransfer\advice\GlobalExceptionHandler.class
 com\moneytransfer\domain\status\AccountStatus.class
 com\moneytransfer\dto\response\ErrorResponse$ErrorResponseBuilder.class
 com\moneytransfer\dto\request\UserRegistrationRequest$UserRegistrationRequestBuilder.class
+com\moneytransfer\domain\entity\Reward.class
 com\moneytransfer\dto\response\UserResponse$UserResponseBuilder.class
 com\moneytransfer\dto\response\TransactionLogResponse.class
 com\moneytransfer\repository\UserRepository.class
+com\moneytransfer\controller\RewardController.class
+com\moneytransfer\dto\response\RewardSummaryResponse.class
 com\moneytransfer\dto\response\AccountResponse$AccountResponseBuilder.class
 com\moneytransfer\dto\response\ApiResponse$ResponseMetadata$ResponseMetadataBuilder.class
 com\moneytransfer\controller\UserController.class

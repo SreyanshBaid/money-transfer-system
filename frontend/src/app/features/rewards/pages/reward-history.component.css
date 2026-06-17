@@ -1,0 +1,222 @@
+.reward-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.reward-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  max-width: 700px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.card-header {
+  background: linear-gradient(135deg, var(--prussian-blue) 0%, var(--regal-navy) 70%, var(--school-bus-yellow) 100%);
+  color: white;
+  padding: 24px;
+}
+
+.card-header h1 {
+  margin: 0 0 4px 0;
+  font-size: 24px;
+}
+
+.card-header p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.spinner {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--regal-navy);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.alert {
+  padding: 16px;
+  border-radius: 8px;
+  margin: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert-error {
+  background-color: #fff5f5;
+  color: #dc3545;
+  border: 1px solid #f5c2c7;
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+  margin-left: 12px;
+}
+
+.btn-secondary {
+  background: var(--school-bus-yellow);
+  color: var(--ink-black);
+  border: 1px solid var(--gold);
+}
+
+.btn-secondary:hover {
+  background: var(--gold);
+  border-color: var(--school-bus-yellow);
+}
+
+.reward-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 24px;
+  background: #f9f9f9;
+  border-bottom: 1px solid #eee;
+}
+
+.summary-stat {
+  text-align: center;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-top: 3px solid var(--school-bus-yellow);
+}
+
+.stat-label {
+  display: block;
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--prussian-blue);
+}
+
+.points-value {
+  color: var(--regal-navy);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+}
+
+.reward-table-wrapper {
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.reward-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.reward-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.reward-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+  color: #333;
+}
+
+.reward-table tr:last-child td {
+  border-bottom: none;
+}
+
+.points-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--school-bus-yellow), var(--gold));
+  color: var(--ink-black);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  min-width: 48px;
+  text-align: center;
+}
+
+.reason-cell {
+  max-width: 300px;
+  word-break: break-word;
+}
+
+.date-cell {
+  white-space: nowrap;
+  color: #666;
+  font-size: 13px;
+}
+
+.card-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #eee;
+  background: #f9f9f9;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 600px) {
+  .reward-container {
+    padding: 16px;
+  }
+
+  .reward-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .reward-table th,
+  .reward-table td {
+    padding: 10px 12px;
+  }
+
+  .reason-cell {
+    max-width: 160px;
+  }
+}

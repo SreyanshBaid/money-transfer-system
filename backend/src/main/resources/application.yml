@@ -10,11 +10,18 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 1
 
   # Flyway Configuration
   flyway:
     baseline-on-migrate: false
     validate-on-migrate: true
+    out-of-order: true
+    connect-retries: 5
+    connect-retries-interval: 10
     locations: classpath:db/migration
 
   # JPA Configuration

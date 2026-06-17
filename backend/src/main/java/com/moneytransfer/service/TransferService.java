@@ -11,6 +11,7 @@ import com.moneytransfer.dto.request.TransferRequest;
 import com.moneytransfer.dto.response.TransferResponse;
 import com.moneytransfer.repository.AccountRepository;
 import com.moneytransfer.repository.TransactionLogRepository;
+import com.moneytransfer.service.RewardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ public class TransferService {
     private final AccountRepository accountRepository;
     private final TransactionLogRepository transactionLogRepository;
     private final OwnershipService ownershipService;
+    private final RewardService rewardService;
 
     /**
      * Execute a money transfer between two accounts.
@@ -198,7 +200,10 @@ public class TransferService {
                 request.getSourceAccountId(), request.getDestinationAccountId(),
                 request.getAmount(), debitLog.getId(), creditLog.getId());
 
-        // Step 9: Return response
+        // Step 9: Grant reward for eligible transaction
+        rewardService.grantRewardForTransaction(debitLog);
+
+        // Step 10: Return response
         return buildTransferResponse(sourceAccount.getId(), destinationAccount.getId(), debitLog);
     }
 

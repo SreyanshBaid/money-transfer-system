@@ -35,6 +35,42 @@
   opacity: 0.9;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.reward-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.reward-badge:hover {
+  background: rgba(255, 195, 0, 0.3);
+  border-color: var(--school-bus-yellow);
+  transform: scale(1.05);
+}
+
+.reward-icon {
+  color: var(--school-bus-yellow);
+  font-size: 16px;
+}
+
+.reward-points {
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .btn-logout {
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -362,6 +398,16 @@
 
 .combined-balance {
   color: var(--regal-navy);
+}
+
+.reward-points-stat {
+  color: var(--school-bus-yellow);
+  text-shadow: 0 0 8px rgba(255, 195, 0, 0.3);
+  transition: transform 0.2s;
+}
+
+.reward-points-stat:hover {
+  transform: scale(1.1);
 }
 
 /* Buttons */

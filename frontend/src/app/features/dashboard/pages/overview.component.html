@@ -51,7 +51,14 @@
         <h1>Money Transfer System</h1>
         <p *ngIf="user$ | async as user" class="welcome">Welcome, {{ user.username }}!</p>
       </div>
-      <button class="btn btn-logout" (click)="logout()">Logout</button>
+      <div class="header-actions">
+        <app-reward-points-widget
+          [totalPoints]="rewardSummary.totalPoints"
+          (click)="navigateToRewards()"
+          title="View rewards">
+        </app-reward-points-widget>
+        <button class="btn btn-logout" (click)="logout()">Logout</button>
+      </div>
     </div>
   </header>
 
@@ -158,6 +165,12 @@
               ${{ (accounts | combineBalance) | number: '1.2-2' }}
             </p>
           </div>
+          <div class="stat-item">
+            <h4>Reward Points</h4>
+            <p class="stat-value reward-points-stat" (click)="navigateToRewards()" style="cursor: pointer;">
+              {{ rewardSummary.totalPoints }}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -179,6 +192,11 @@
             <div class="action-icon">📊</div>
             <h4>Track History</h4>
             <p>View all your transactions in one place</p>
+          </div>
+          <div class="action-item" (click)="navigateToRewards()" style="cursor: pointer;">
+            <div class="action-icon">&#9733;</div>
+            <h4>Rewards</h4>
+            <p>View your reward points and history</p>
           </div>
         </div>
       </div>
