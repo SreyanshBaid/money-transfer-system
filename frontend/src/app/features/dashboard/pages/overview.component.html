@@ -47,7 +47,7 @@
         </div>
       </div>
       
-      <div>
+      <div class="header-text">
         <h1>Money Transfer System</h1>
         <p *ngIf="user$ | async as user" class="welcome">Welcome, {{ user.username }}!</p>
       </div>
@@ -164,39 +164,6 @@
             <p class="stat-value combined-balance">
               ${{ (accounts | combineBalance) | number: '1.2-2' }}
             </p>
-          </div>
-          <div class="stat-item">
-            <h4>Reward Points</h4>
-            <p class="stat-value reward-points-stat" (click)="navigateToRewards()" style="cursor: pointer;">
-              {{ rewardSummary.totalPoints }}
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions Section -->
-      <div class="quick-actions">
-        <h3>Quick Actions</h3>
-        <div class="actions-grid">
-          <div class="action-item">
-            <div class="action-icon">💳</div>
-            <h4>Quick Transfer</h4>
-            <p>Send money to another account in seconds</p>
-          </div>
-          <div class="action-item">
-            <div class="action-icon">🔒</div>
-            <h4>Secure</h4>
-            <p>All transactions are protected with JWT authentication</p>
-          </div>
-          <div class="action-item">
-            <div class="action-icon">📊</div>
-            <h4>Track History</h4>
-            <p>View all your transactions in one place</p>
-          </div>
-          <div class="action-item" (click)="navigateToRewards()" style="cursor: pointer;">
-            <div class="action-icon">&#9733;</div>
-            <h4>Rewards</h4>
-            <p>View your reward points and history</p>
           </div>
         </div>
       </div>

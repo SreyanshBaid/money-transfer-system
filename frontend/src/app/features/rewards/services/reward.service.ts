@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 export interface Reward {
   id: number;
@@ -24,6 +24,8 @@ export interface RewardSummary {
 })
 export class RewardService {
   private apiUrl = 'http://localhost:8080/api/v1/rewards';
+  private rewardRefreshSubject = new Subject<void>();
+  readonly rewardRefresh$ = this.rewardRefreshSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -33,5 +35,9 @@ export class RewardService {
 
   getRewardSummary(): Observable<RewardSummary> {
     return this.http.get<RewardSummary>(`${this.apiUrl}/summary`);
+  }
+
+  refreshRewardSummary(): void {
+    this.rewardRefreshSubject.next();
   }
 }

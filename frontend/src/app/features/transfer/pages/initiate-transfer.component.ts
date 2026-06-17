@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TransferService, TransferResponse } from '../services/transfer.service';
+import { RewardService } from '../../rewards/services/reward.service';
 import { finalize } from 'rxjs/operators';
 
 // Transfer form with validation and submission logic
@@ -26,6 +27,7 @@ export class InitiateTransferComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private transferService: TransferService,
+    private rewardService: RewardService,
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef
@@ -87,6 +89,9 @@ export class InitiateTransferComponent implements OnInit {
       next: (response: TransferResponse) => {
         this.success = true;
         this.successMessage = `Transfer of $${request.amount.toFixed(2)} initiated successfully!`;
+
+        // Refresh reward summary immediately so the dashboard can show updated points
+        this.rewardService.refreshRewardSummary();
         
         // Reset form
         this.transferForm.reset();

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { CommonModule, NgIf } from '@angular/common';
 import { Observable, Subject, BehaviorSubject, filter } from 'rxjs';
@@ -50,7 +50,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private authService: AuthService,
     private rewardService: RewardService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     console.log('🔍 OverviewComponent: Constructor - Initializing...');
     
@@ -80,6 +81,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
               // Data arrived successfully
               this.isLoadingSubject$.next(false);
               this.errorSubject$.next(null);
+              this.loadRewardSummary();
             }),
             finalize(() => {
               // Ensure loading is false when observable completes
@@ -119,12 +121,25 @@ export class OverviewComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Load reward summary
-    this.loadRewardSummary();
+    // Only load reward summary after the authenticated user state is ready.
+    // This avoids transient "0 points" values when the dashboard mounts before auth finishes.
+    this.authService.getAuthState().pipe(
+      filter(state => state.isAuthenticated),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.loadRewardSummary();
+    });
 
-    // Auto-refresh reward summary when navigating back from transfer page
+    // Refresh rewards whenever the dashboard becomes active again
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.loadRewardSummary();
+    });
+
+    // Refresh rewards whenever another feature signals that a transfer succeeded
+    this.rewardService.rewardRefresh$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(() => {
       this.loadRewardSummary();
@@ -137,9 +152,11 @@ export class OverviewComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (summary) => {
         this.rewardSummary = summary;
+        this.cdr.markForCheck();
       },
       error: () => {
         // Keep default 0-point summary on failure
+        this.cdr.markForCheck();
       }
     });
   }

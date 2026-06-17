@@ -11,8 +11,19 @@
   --sky-blue: #4d9de0ff;
 }
 
-/* Application Background */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
 body {
+  font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
   background-image: url('/assets/app-background.png');
   background-size: cover;
   background-position: center;
@@ -21,7 +32,6 @@ body {
   min-height: 100vh;
 }
 
-/* Optional: Add a semi-transparent overlay for better content readability */
 body::before {
   content: '';
   position: fixed;
