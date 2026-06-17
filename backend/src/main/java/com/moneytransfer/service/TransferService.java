@@ -109,8 +109,12 @@ public class TransferService {
                     request.getIdempotencyKey());
             
             TransactionLog txn = existingTransaction.get();
-                return buildTransferResponse(request.getSourceAccountId(), 
-                    request.getDestinationAccountId(), txn);
+            return buildTransferResponse(
+                    request.getSourceAccountId(),
+                    request.getDestinationAccountId(),
+                    txn,
+                    0
+            );
         }
 
         // Step 2: Load accounts (before validation so we can check if they exist and are active)
@@ -201,10 +205,10 @@ public class TransferService {
                 request.getAmount(), debitLog.getId(), creditLog.getId());
 
         // Step 9: Grant reward for eligible transaction
-        rewardService.grantRewardForTransaction(debitLog);
+        int rewardPointsEarned = rewardService.grantRewardForTransaction(debitLog);
 
         // Step 10: Return response
-        return buildTransferResponse(sourceAccount.getId(), destinationAccount.getId(), debitLog);
+        return buildTransferResponse(sourceAccount.getId(), destinationAccount.getId(), debitLog, rewardPointsEarned);
     }
 
     /**
@@ -255,7 +259,8 @@ public class TransferService {
      * @return TransferResponse suitable for API response
      */
     private TransferResponse buildTransferResponse(Long sourceAccountId, Long destinationAccountId,
-                                                   TransactionLog debitTransaction) {
+                                                   TransactionLog debitTransaction,
+                                                   int rewardPointsEarned) {
         return TransferResponse.builder()
                 .transactionId(debitTransaction.getId())
                 .sourceAccountId(sourceAccountId)
@@ -266,6 +271,7 @@ public class TransferService {
                 .description(debitTransaction.getDescription())
                 .createdAt(debitTransaction.getCreatedAt())
                 .updatedAt(debitTransaction.getCreatedAt()) // TransactionLog is immutable
+                .rewardPointsEarned(rewardPointsEarned)
                 .build();
     }
 

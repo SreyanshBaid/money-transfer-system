@@ -35,4 +35,6 @@ public class TransferResponse {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private int rewardPointsEarned;
 }

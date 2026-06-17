@@ -39,21 +39,21 @@ public class RewardService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void grantRewardForTransaction(TransactionLog debitLog) {
+    public int grantRewardForTransaction(TransactionLog debitLog) {
         if (debitLog == null) {
             log.warn("Cannot grant reward: transaction log is null");
-            return;
+            return 0;
         }
 
         if (!ELIGIBLE_TRANSACTION_STATUSES.contains(debitLog.getStatus())) {
             log.debug("Reward SKIP [txn={}]: status is {}, not eligible", debitLog.getId(), debitLog.getStatus());
-            return;
+            return 0;
         }
 
         if (debitLog.getAmount().compareTo(ELIGIBILITY_THRESHOLD) <= 0) {
             log.debug("Reward SKIP [txn={}]: amount {} does not exceed threshold of {}",
                     debitLog.getId(), debitLog.getAmount(), ELIGIBILITY_THRESHOLD);
-            return;
+            return 0;
         }
 
         Long fromAccountId = debitLog.getFromAccountId();
@@ -61,7 +61,7 @@ public class RewardService {
 
         if (toAccountId == null) {
             log.debug("Reward SKIP [txn={}]: no destination account", debitLog.getId());
-            return;
+            return 0;
         }
 
         Account sourceAccount = accountRepository.findByIdWithOwner(fromAccountId)
@@ -72,7 +72,7 @@ public class RewardService {
         if (sourceAccount.getOwner() == null || destAccount.getOwner() == null) {
             log.warn("Reward SKIP [txn={}]: account(s) lack an owner (source owner={}, dest owner={})",
                     debitLog.getId(), sourceAccount.getOwner(), destAccount.getOwner());
-            return;
+            return 0;
         }
 
         Long senderUserId = sourceAccount.getOwner().getId();
@@ -81,14 +81,14 @@ public class RewardService {
         if (senderUserId.equals(receiverUserId)) {
             log.warn("Reward SKIP [txn={}]: self-transfer — both accounts owned by user {}",
                     debitLog.getId(), senderUserId);
-            return;
+            return 0;
         }
 
         int points = debitLog.getAmount().divide(POINTS_PER_UNIT, RoundingMode.DOWN).intValue();
         if (points <= 0) {
             log.debug("Reward SKIP [txn={}]: calculated 0 points for amount {}",
                     debitLog.getId(), debitLog.getAmount());
-            return;
+            return 0;
         }
 
         Reward reward = Reward.builder()
@@ -102,6 +102,7 @@ public class RewardService {
         rewardRepository.save(reward);
         log.info("Reward GRANTED: {} points to user {} for transaction {} (accounts {} -> {})",
                 points, senderUserId, debitLog.getId(), fromAccountId, toAccountId);
+        return points;
     }
 
     @Transactional(readOnly = true)

@@ -11,11 +11,16 @@ export interface TransferRequest {
 }
 
 export interface TransferResponse {
-  id: string;
-  status: 'SUCCESS' | 'PENDING' | 'FAILED';
-  amount: number;
-  timestamp: Date;
-  message?: string;
+  transactionId?: string;
+  sourceAccountId?: number;
+  destinationAccountId?: number;
+  amount?: number;
+  transactionType?: string;
+  status?: 'SUCCESS' | 'PENDING' | 'FAILED' | string;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  rewardPointsEarned?: number;
 }
 
 // Handles money transfer API calls

@@ -90,6 +90,11 @@ export class InitiateTransferComponent implements OnInit {
         this.success = true;
         this.successMessage = `Transfer of $${request.amount.toFixed(2)} initiated successfully!`;
 
+        if ((response.rewardPointsEarned ?? 0) > 0) {
+          const pointLabel = response.rewardPointsEarned === 1 ? 'point' : 'points';
+          this.successMessage += ` You earned ${response.rewardPointsEarned} reward ${pointLabel}!`;
+        }
+
         // Refresh reward summary immediately so the dashboard can show updated points
         this.rewardService.refreshRewardSummary();
         
