@@ -21,25 +21,40 @@
           </ng-container>
         </div>
         
-        <!-- Profile Dropdown -->
-        <div class="profile-dropdown" *ngIf="showProfileDropdown" (click)="$event.stopPropagation()">
-          <div class="profile-dropdown-header">
-            <div class="avatar-circle-large">
-              <img src="assets/profile.png" alt="Profile Avatar" class="avatar-image-large">
+        <!-- Profile Sidebar -->
+        <div class="sidebar-overlay" *ngIf="showProfileDropdown" (click)="closeProfileSidebar()"></div>
+        <div class="profile-sidebar" *ngIf="showProfileDropdown">
+          <div class="sidebar-header">
+            <div class="sidebar-header-top">
+              <h2>Profile</h2>
+              <button class="sidebar-close" (click)="closeProfileSidebar()" aria-label="Close sidebar">&times;</button>
             </div>
-            <div class="profile-info" *ngIf="user$ | async as user">
-              <h3>{{ user.username }}</h3>
-              <p class="user-email">{{ user.email }}</p>
+            <div class="sidebar-avatar-section">
+              <div class="avatar-circle-large">
+                <img src="assets/profile.png" alt="Profile Avatar" class="avatar-image-large">
+              </div>
+              <div class="sidebar-user-basic" *ngIf="user$ | async as user">
+                <h3>{{ user.username }}</h3>
+                <p class="sidebar-user-email">{{ user.email }}</p>
+              </div>
             </div>
           </div>
-          <div class="profile-dropdown-body" *ngIf="user$ | async as user">
-            <div class="profile-detail-item">
-              <span class="label">User ID:</span>
-              <span class="value">{{ user.id }}</span>
+          <div class="sidebar-body" *ngIf="user$ | async as user">
+            <div class="sidebar-detail-item">
+              <span class="sidebar-label">User ID</span>
+              <span class="sidebar-value">{{ user.id }}</span>
             </div>
-            <div class="profile-detail-item">
-              <span class="label">Roles:</span>
-              <span class="value">
+            <div class="sidebar-detail-item">
+              <span class="sidebar-label">Username</span>
+              <span class="sidebar-value">{{ user.username }}</span>
+            </div>
+            <div class="sidebar-detail-item">
+              <span class="sidebar-label">Email</span>
+              <span class="sidebar-value">{{ user.email }}</span>
+            </div>
+            <div class="sidebar-detail-item">
+              <span class="sidebar-label">Roles</span>
+              <span class="sidebar-value">
                 <span class="role-badge" *ngFor="let role of user.roles">{{ role }}</span>
               </span>
             </div>
@@ -80,7 +95,7 @@
     <ng-container *ngIf="(isLoading$ | async) === false && !(error$ | async) && (accounts$ | async) as accounts">
       <div class="dashboard-content">
       <!-- Welcome Banner -->
-      <div class="welcome-banner">
+      <div *ngIf="!isAdmin" class="welcome-banner">
         <h2>Your Accounts</h2>
         <p>Manage your accounts and money transfers securely</p>
       </div>
@@ -88,7 +103,7 @@
       <!-- Accounts Container -->
       <div class="accounts-section">
         <!-- Empty State -->
-        <div *ngIf="accounts.length === 0" class="empty-state">
+        <div *ngIf="!isAdmin && accounts.length === 0" class="empty-state">
           <p>No accounts found. Please create an account to get started.</p>
         </div>
 
@@ -166,6 +181,129 @@
             </p>
           </div>
         </div>
+
+        <!-- Admin Cards (visible only to admin users) -->
+        <div *ngIf="isAdmin" class="admin-section">
+          <h2 class="admin-section-title">Admin Panel</h2>
+          <div class="admin-cards accounts-cards">
+            <!-- Card: Register User -->
+            <div class="account-card">
+              <div class="card-header">
+                <div class="card-header-content">
+                  <h3 class="account-type">Register User</h3>
+                  <p class="account-holder">Create new system user</p>
+                </div>
+                <span class="status-badge status-active">Admin</span>
+              </div>
+              <div class="card-body admin-form-body">
+                <div *ngIf="regError" class="alert alert-error">{{ regError }}</div>
+                <div class="admin-field">
+                  <input type="text" class="admin-input" [(ngModel)]="regModel.username" placeholder="Username" minlength="3">
+                </div>
+                <div class="admin-field">
+                  <input type="password" class="admin-input" [(ngModel)]="regModel.password" placeholder="Password" minlength="6">
+                </div>
+                <div class="admin-field">
+                  <input type="email" class="admin-input" [(ngModel)]="regModel.email" placeholder="Email">
+                </div>
+                <div class="admin-field">
+                  <input type="text" class="admin-input" [(ngModel)]="regModel.fullName" placeholder="Full Name">
+                </div>
+              </div>
+              <div class="card-actions" style="grid-template-columns: 1fr;">
+                <button class="btn btn-primary" (click)="registerUser()" [disabled]="regLoading">{{ regLoading ? 'Registering...' : 'Register' }}</button>
+              </div>
+            </div>
+
+            <!-- Card: Create Account -->
+            <div class="account-card">
+              <div class="card-header">
+                <div class="card-header-content">
+                  <h3 class="account-type">Create Account</h3>
+                  <p class="account-holder">Open new account for user</p>
+                </div>
+                <span class="status-badge status-active">Admin</span>
+              </div>
+              <div class="card-body admin-form-body">
+                <div *ngIf="acctError" class="alert alert-error">{{ acctError }}</div>
+                <div class="admin-field">
+                  <input type="number" class="admin-input" [(ngModel)]="createForUserId" placeholder="User ID" min="1">
+                </div>
+                <div class="admin-field">
+                  <input type="text" class="admin-input" [(ngModel)]="acctModel.accountNumber" placeholder="Account Number (e.g. ACC003)">
+                </div>
+                <div class="admin-field">
+                  <input type="text" class="admin-input" [(ngModel)]="acctModel.accountHolder" placeholder="Account Holder">
+                </div>
+                <div class="admin-field">
+                  <input type="number" class="admin-input" [(ngModel)]="acctModel.balance" placeholder="Initial Balance" min="0" step="0.01">
+                </div>
+                <div class="admin-field">
+                  <select class="admin-input" [(ngModel)]="acctModel.accountType">
+                    <option value="CHECKING">Checking</option>
+                    <option value="SAVINGS">Savings</option>
+                    <option value="BUSINESS">Business</option>
+                  </select>
+                </div>
+                <div class="admin-field">
+                  <select class="admin-input" [(ngModel)]="acctModel.status">
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
+                  </select>
+                </div>
+              </div>
+              <div class="card-actions" style="grid-template-columns: 1fr;">
+                <button class="btn btn-primary" (click)="createAccount()" [disabled]="acctLoading || !createForUserId">{{ acctLoading ? 'Creating...' : 'Create Account' }}</button>
+              </div>
+            </div>
+
+            <!-- Card: Search Transactions -->
+            <div class="account-card">
+              <div class="card-header">
+                <div class="card-header-content">
+                  <h3 class="account-type">Search Transactions</h3>
+                  <p class="account-holder">View account transaction history</p>
+                </div>
+                <span class="status-badge status-active">Admin</span>
+              </div>
+              <div class="card-body admin-form-body">
+                <div *ngIf="txnError" class="alert alert-error">{{ txnError }}</div>
+                <div class="admin-field">
+                  <input type="number" class="admin-input" [(ngModel)]="txnAccountId" placeholder="Enter Account ID" min="1">
+                </div>
+                <div class="admin-field" *ngIf="txnLoading">
+                  <span class="admin-hint">Loading...</span>
+                </div>
+              </div>
+              <div class="card-actions" style="grid-template-columns: 1fr;">
+                <button class="btn btn-primary" (click)="searchTransactions()" [disabled]="!txnAccountId || txnLoading">{{ txnLoading ? 'Searching...' : 'Search' }}</button>
+              </div>
+            </div>
+
+            <!-- Card: Account Details -->
+            <div class="account-card">
+              <div class="card-header">
+                <div class="card-header-content">
+                  <h3 class="account-type">Account Details</h3>
+                  <p class="account-holder">Look up account information</p>
+                </div>
+                <span class="status-badge status-active">Admin</span>
+              </div>
+              <div class="card-body admin-form-body">
+                <div *ngIf="detailError" class="alert alert-error">{{ detailError }}</div>
+                <div class="admin-field">
+                  <input type="number" class="admin-input" [(ngModel)]="detailAccountId" placeholder="Enter Account ID" min="1">
+                </div>
+                <div class="admin-field" *ngIf="detailLoading">
+                  <span class="admin-hint">Loading...</span>
+                </div>
+              </div>
+              <div class="card-actions" style="grid-template-columns: 1fr;">
+                <button class="btn btn-primary" (click)="lookupAccountDetails()" [disabled]="!detailAccountId || detailLoading">{{ detailLoading ? 'Loading...' : 'Lookup' }}</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     </ng-container>
@@ -225,6 +363,126 @@
       <button class="btn btn-primary" (click)="navigateToTransfer(selectedAccount.id.toString())">Send Money</button>
       <button class="btn btn-secondary" (click)="navigateToHistory(selectedAccount.id.toString())">View History</button>
       <button class="btn btn-secondary" (click)="closeAccountDetails()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Transaction Results Modal -->
+<div class="modal-overlay" *ngIf="showTxnModal" (click)="closeTxnModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Transaction Results</h2>
+      <button class="modal-close" (click)="closeTxnModal()" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="txnAccount" class="txn-modal-section">
+        <h3 class="modal-subtitle">Account Information</h3>
+        <div class="detail-row">
+          <span class="detail-label">Account Number:</span>
+          <span class="detail-value">{{ txnAccount.accountNumber }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Account Holder:</span>
+          <span class="detail-value">{{ txnAccount.accountHolder }}</span>
+        </div>
+        <div class="detail-row highlight" *ngIf="txnBalance">
+          <span class="detail-label">Current Balance:</span>
+          <span class="detail-value balance-amount">${{ txnBalance.balance | number:'1.2-2' }}</span>
+        </div>
+      </div>
+      <div class="txn-modal-section">
+        <h3 class="modal-subtitle">Recent Transactions</h3>
+        <div *ngIf="transactions.length === 0" class="admin-hint">No transactions found.</div>
+        <div class="txn-list" *ngIf="transactions.length > 0">
+          <div class="admin-txn-mini" *ngFor="let txn of transactions">
+            <span class="txn-type" [class.debit]="txn.transactionType === 'DEBIT'" [class.credit]="txn.transactionType === 'CREDIT'">{{ txn.transactionType }}</span>
+            <span>${{ txn.amount | number:'1.2-2' }}</span>
+            <span class="txn-status" [class.completed]="txn.status === 'COMPLETED'">{{ txn.status }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeTxnModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Account Lookup Modal -->
+<div class="modal-overlay" *ngIf="showDetailModal" (click)="closeDetailModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Account Details</h2>
+      <button class="modal-close" (click)="closeDetailModal()" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div *ngIf="detailAccount" class="detail-section">
+        <div class="detail-row">
+          <span class="detail-label">Account ID:</span>
+          <span class="detail-value">{{ detailAccount.id }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Account Number:</span>
+          <span class="detail-value">{{ detailAccount.accountNumber }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Account Holder:</span>
+          <span class="detail-value">{{ detailAccount.accountHolder }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Account Type:</span>
+          <span class="detail-value">{{ detailAccount.accountType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Status:</span>
+          <span class="detail-value">
+            <span class="status-badge-inline" [class.status-active]="detailAccount.status === 'ACTIVE'" [class.status-inactive]="detailAccount.status !== 'ACTIVE'">
+              {{ detailAccount.status }}
+            </span>
+          </span>
+        </div>
+        <div class="detail-row highlight" *ngIf="detailBalance">
+          <span class="detail-label">Current Balance:</span>
+          <span class="detail-value balance-amount">${{ detailBalance.balance | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeDetailModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Register User Success Modal -->
+<div class="modal-overlay" *ngIf="showRegSuccessModal" (click)="closeRegSuccessModal()">
+  <div class="modal-content modal-success" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header-success">
+      <h2>Success</h2>
+      <button class="modal-close" (click)="closeRegSuccessModal()" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="modal-body modal-body-success">
+      <div class="success-icon">&#10003;</div>
+      <p class="success-message">{{ regSuccess }}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="closeRegSuccessModal()">OK</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Account Success Modal -->
+<div class="modal-overlay" *ngIf="showAcctSuccessModal" (click)="closeAcctSuccessModal()">
+  <div class="modal-content modal-success" (click)="$event.stopPropagation()">
+    <div class="modal-header modal-header-success">
+      <h2>Success</h2>
+      <button class="modal-close" (click)="closeAcctSuccessModal()" aria-label="Close modal">&times;</button>
+    </div>
+    <div class="modal-body modal-body-success">
+      <div class="success-icon">&#10003;</div>
+      <p class="success-message">{{ acctSuccess }}</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" (click)="closeAcctSuccessModal()">OK</button>
     </div>
   </div>
 </div>

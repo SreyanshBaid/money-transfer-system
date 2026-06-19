@@ -1,21 +1,24 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { CommonModule, NgIf } from '@angular/common';
-import { Observable, Subject, BehaviorSubject, filter } from 'rxjs';
+import { Observable, Subject, BehaviorSubject, forkJoin, filter } from 'rxjs';
 import { switchMap, takeUntil, tap, finalize, shareReplay } from 'rxjs/operators';
+import { FormsModule } from '@angular/forms';
 import { AccountService, AccountCardViewModel } from '../services/account.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { TokenService } from '../../../core/auth/token.service';
 import { User } from '../../../core/auth/auth.models';
 import { RewardService, RewardSummary } from '../../rewards/services/reward.service';
 import { RewardPointsWidgetComponent } from '../../rewards/components/reward-points-widget.component';
 import { CombineBalancePipe } from '../../../shared/pipes';
+import { AdminService, UserRegistrationRequest, CreateAccountRequest, AccountResponse, AccountBalanceResponse, TransactionLogResponse } from '../../admin/services/admin.service';
 
 // OverviewComponent fetches user profile and all accounts with balances
 // Displays accounts as scrollable cards with proper loading/error handling
 @Component({
   selector: 'app-overview',
   standalone: true,
-  imports: [CommonModule, NgIf, RewardPointsWidgetComponent, CombineBalancePipe],
+  imports: [CommonModule, NgIf, FormsModule, RewardPointsWidgetComponent, CombineBalancePipe],
   templateUrl: './overview.component.html',
   styleUrls: ['./overview.component.css']
 })
@@ -35,6 +38,41 @@ export class OverviewComponent implements OnInit, OnDestroy {
   showProfileDropdown = false;
   selectedAccount: AccountCardViewModel | null = null;
 
+  // Admin flag
+  isAdmin = false;
+
+  // Register user form
+  regModel: UserRegistrationRequest = { username: '', password: '', email: '', fullName: '' };
+  regLoading = false;
+  regError = '';
+  regSuccess = '';
+  showRegSuccessModal = false;
+
+  // Create account form
+  createForUserId: number | null = null;
+  acctModel: CreateAccountRequest = { accountNumber: '', accountHolder: '', balance: 0, accountType: 'CHECKING', status: 'ACTIVE' };
+  acctLoading = false;
+  acctError = '';
+  acctSuccess = '';
+  showAcctSuccessModal = false;
+
+  // Transaction search
+  txnAccountId: number | null = null;
+  txnAccount: AccountResponse | null = null;
+  txnBalance: AccountBalanceResponse | null = null;
+  transactions: TransactionLogResponse[] = [];
+  txnLoading = false;
+  txnError = '';
+  showTxnModal = false;
+
+  // Account detail lookup
+  detailAccountId: number | null = null;
+  detailAccount: AccountResponse | null = null;
+  detailBalance: AccountBalanceResponse | null = null;
+  detailLoading = false;
+  detailError = '';
+  showDetailModal = false;
+
   // Reward summary - default with 0 points so badge always visible
   rewardSummary: RewardSummary = {
     userId: 0,
@@ -47,11 +85,13 @@ export class OverviewComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
+    private cdr: ChangeDetectorRef,
     private accountService: AccountService,
     private authService: AuthService,
     private rewardService: RewardService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
+    private tokenService: TokenService,
+    private adminService: AdminService,
+    private router: Router
   ) {
     console.log('🔍 OverviewComponent: Constructor - Initializing...');
     
@@ -67,6 +107,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
         console.log('✅ User found:', { username: user.username, email: user.email });
       }
     });
+    
+    // Check if current user is admin
+    const storedUser = this.tokenService.getUser();
+    this.isAdmin = storedUser?.roles?.includes('ADMIN') ?? false;
     
     // Initialize accounts observable - fetches accounts and their balances
     // shareReplay ensures observable executes only once even with multiple subscribers
@@ -112,14 +156,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Close profile dropdown when clicking outside
-    if (typeof document !== 'undefined') {
-      document.addEventListener('click', () => {
-        if (this.showProfileDropdown) {
-          this.showProfileDropdown = false;
-        }
-      });
-    }
+    // Sidebar is closed via overlay click or close button
 
     // Only load reward summary after the authenticated user state is ready.
     // This avoids transient "0 points" values when the dashboard mounts before auth finishes.
@@ -165,6 +202,116 @@ export class OverviewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/rewards']);
   }
 
+  // ── Register user ──
+  registerUser(): void {
+    this.regLoading = true;
+    this.regError = '';
+    this.regSuccess = '';
+    this.adminService.registerUser(this.regModel).pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.regSuccess = `User ${this.regModel.username} registered successfully.`;
+        this.regModel = { username: '', password: '', email: '', fullName: '' };
+        this.regLoading = false;
+        this.showRegSuccessModal = true;
+        this.cdr.markForCheck();
+      },
+      error: (err) => {
+        this.regError = err.error?.detail || err.error?.message || err.message || 'Registration failed.';
+        this.regLoading = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  // ── Create account ──
+  createAccount(): void {
+    if (!this.createForUserId) return;
+    this.acctLoading = true;
+    this.acctError = '';
+    this.acctSuccess = '';
+    this.adminService.createAccountForUser(this.createForUserId, this.acctModel)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (acct) => {
+          this.acctSuccess = `Account ${acct.accountNumber} created successfully.`;
+          this.createForUserId = null;
+          this.acctModel = { accountNumber: '', accountHolder: '', balance: 0, accountType: 'CHECKING', status: 'ACTIVE' };
+          this.acctLoading = false;
+          this.showAcctSuccessModal = true;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.acctError = err.error?.detail || err.error?.message || err.message || 'Account creation failed.';
+          this.acctLoading = false;
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+  // ── Search transactions ──
+  searchTransactions(): void {
+    if (!this.txnAccountId) return;
+    this.txnLoading = true;
+    this.txnError = '';
+    this.txnAccount = null;
+    this.txnBalance = null;
+    this.transactions = [];
+
+    this.adminService.getAccount(this.txnAccountId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (acct) => {
+          this.txnAccount = acct;
+          this.showTxnModal = true;
+          this.cdr.markForCheck();
+          this.adminService.getAccountBalance(this.txnAccountId!)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({ next: (bal) => { this.txnBalance = bal; this.cdr.markForCheck(); } });
+          this.adminService.getAccountTransactions(this.txnAccountId!, 0, 5)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (res) => { this.transactions = res.content; this.txnLoading = false; this.cdr.markForCheck(); },
+              error: () => { this.txnLoading = false; this.cdr.markForCheck(); }
+            });
+        },
+        error: () => {
+          this.txnError = `Account ${this.txnAccountId} not found.`;
+          this.txnLoading = false;
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
+  // ── Account details lookup ──
+  lookupAccountDetails(): void {
+    if (!this.detailAccountId) return;
+    this.detailLoading = true;
+    this.detailError = '';
+    this.detailAccount = null;
+    this.detailBalance = null;
+
+    this.adminService.getAccount(this.detailAccountId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (acct) => {
+          this.detailAccount = acct;
+          this.showDetailModal = true;
+          this.cdr.markForCheck();
+          this.adminService.getAccountBalance(this.detailAccountId!)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (bal) => { this.detailBalance = bal; this.detailLoading = false; this.cdr.markForCheck(); },
+              error: () => { this.detailLoading = false; this.cdr.markForCheck(); }
+            });
+        },
+        error: () => {
+          this.detailError = `Account ${this.detailAccountId} not found.`;
+          this.detailLoading = false;
+          this.cdr.markForCheck();
+        }
+      });
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -188,9 +335,14 @@ export class OverviewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  // Toggle profile dropdown
+  // Toggle profile sidebar
   toggleProfileDropdown(): void {
     this.showProfileDropdown = !this.showProfileDropdown;
+  }
+
+  // Close profile sidebar
+  closeProfileSidebar(): void {
+    this.showProfileDropdown = false;
   }
 
   // Get user initials for avatar
@@ -213,5 +365,40 @@ export class OverviewComponent implements OnInit, OnDestroy {
   // Close account details modal
   closeAccountDetails(): void {
     this.selectedAccount = null;
+  }
+
+  // Close transaction search modal and reset
+  closeTxnModal(): void {
+    this.showTxnModal = false;
+    this.txnAccountId = null;
+    this.txnAccount = null;
+    this.txnBalance = null;
+    this.transactions = [];
+    this.txnError = '';
+    this.cdr.markForCheck();
+  }
+
+  // Close account detail lookup modal and reset
+  closeDetailModal(): void {
+    this.showDetailModal = false;
+    this.detailAccountId = null;
+    this.detailAccount = null;
+    this.detailBalance = null;
+    this.detailError = '';
+    this.cdr.markForCheck();
+  }
+
+  // Close register success modal and clear message
+  closeRegSuccessModal(): void {
+    this.showRegSuccessModal = false;
+    this.regSuccess = '';
+    this.cdr.markForCheck();
+  }
+
+  // Close account create success modal and clear message
+  closeAcctSuccessModal(): void {
+    this.showAcctSuccessModal = false;
+    this.acctSuccess = '';
+    this.cdr.markForCheck();
   }
 }

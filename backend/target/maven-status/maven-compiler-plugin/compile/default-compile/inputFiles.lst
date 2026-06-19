@@ -3,6 +3,7 @@ C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytr
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\controller\AccountController.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\domain\status\TransactionStatus.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\dto\response\AccountResponse.java
+C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\dto\response\UserInfoResponse.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\repository\RewardRepository.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\domain\entity\UserRole.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\service\TransferService.java

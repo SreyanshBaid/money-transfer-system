@@ -1,9 +1,12 @@
 package com.moneytransfer.controller;
 
 import com.moneytransfer.config.JwtProperties;
+import com.moneytransfer.domain.entity.User;
 import com.moneytransfer.dto.request.LoginRequest;
 import com.moneytransfer.dto.response.LoginResponse;
 import com.moneytransfer.dto.response.LogoutResponse;
+import com.moneytransfer.dto.response.UserInfoResponse;
+import com.moneytransfer.repository.UserRepository;
 import com.moneytransfer.service.TokenBlacklistService;
 import com.moneytransfer.util.JwtUtil;
 import com.moneytransfer.util.RateLimitUtil;
@@ -40,6 +43,7 @@ public class AuthController {
     private final JwtProperties jwtProperties;
     private final RateLimitUtil rateLimitUtil;
     private final TokenBlacklistService tokenBlacklistService;
+    private final UserRepository userRepository;
 
     @PostMapping("/login")
     @Operation(summary = "Login with credentials", description = "Authenticate user and receive JWT token")
@@ -69,10 +73,22 @@ public class AuthController {
             
             String token = jwtUtil.generateToken(authentication.getName(), roles);
 
+            User user = userRepository.findByUsername(authentication.getName()).orElse(null);
+            UserInfoResponse userInfo = null;
+            if (user != null) {
+                userInfo = UserInfoResponse.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .email(user.getEmail())
+                        .roles(List.of(user.getRole().name()))
+                        .build();
+            }
+
             LoginResponse response = LoginResponse.builder()
                     .token(token)
                     .tokenType("Bearer")
                     .expiresIn(jwtProperties.getExpirationMs() / 1000)
+                    .user(userInfo)
                     .build();
 
             return ResponseEntity.ok(response);

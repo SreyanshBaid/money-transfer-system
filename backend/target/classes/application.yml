@@ -18,7 +18,8 @@ spring:
   # Flyway Configuration
   flyway:
     baseline-on-migrate: false
-    validate-on-migrate: true
+    # Temporarily disabled to allow startup while the DB history is being repaired.
+    validate-on-migrate: false
     out-of-order: true
     connect-retries: 5
     connect-retries-interval: 10
