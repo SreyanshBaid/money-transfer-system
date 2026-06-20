@@ -9,6 +9,7 @@ import com.moneytransfer.dto.response.RewardResponse;
 import com.moneytransfer.dto.response.RewardSummaryResponse;
 import com.moneytransfer.repository.AccountRepository;
 import com.moneytransfer.repository.RewardRepository;
+import com.moneytransfer.repository.TransactionLogRepository;
 import com.moneytransfer.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,6 +45,12 @@ class RewardServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private TransactionLogRepository transactionLogRepository;
+
+    @Mock
+    private OwnershipService ownershipService;
 
     @InjectMocks
     private RewardService rewardService;
@@ -298,6 +305,8 @@ class RewardServiceTest {
                     .thenReturn(Optional.of(senderUser));
             when(rewardRepository.getTotalPointsByUserId(senderUser.getId())).thenReturn(15);
             when(rewardRepository.countByUserId(senderUser.getId())).thenReturn(3L);
+            when(rewardRepository.getTotalEarnedByUserId(senderUser.getId())).thenReturn(20);
+            when(rewardRepository.getTotalRedeemedByUserId(senderUser.getId())).thenReturn(5);
 
             Reward recent = Reward.builder()
                     .id(1L).userId(senderUser.getId()).points(5)
@@ -310,6 +319,8 @@ class RewardServiceTest {
 
             assertThat(summary.getTotalPoints()).isEqualTo(15);
             assertThat(summary.getTotalRewards()).isEqualTo(3);
+            assertThat(summary.getTotalEarned()).isEqualTo(20);
+            assertThat(summary.getTotalRedeemed()).isEqualTo(5);
             assertThat(summary.getRecentRewards()).hasSize(1);
             assertThat(summary.getUsername()).isEqualTo("testuser");
         }
@@ -321,6 +332,8 @@ class RewardServiceTest {
                     .thenReturn(Optional.of(User.builder().id(99L).username("newuser").build()));
             when(rewardRepository.getTotalPointsByUserId(99L)).thenReturn(0);
             when(rewardRepository.countByUserId(99L)).thenReturn(0L);
+            when(rewardRepository.getTotalEarnedByUserId(99L)).thenReturn(0);
+            when(rewardRepository.getTotalRedeemedByUserId(99L)).thenReturn(0);
             when(rewardRepository.findRecentByUserId(eq(99L), any(PageRequest.class)))
                     .thenReturn(List.of());
 
@@ -328,6 +341,8 @@ class RewardServiceTest {
 
             assertThat(summary.getTotalPoints()).isEqualTo(0);
             assertThat(summary.getTotalRewards()).isEqualTo(0);
+            assertThat(summary.getTotalEarned()).isEqualTo(0);
+            assertThat(summary.getTotalRedeemed()).isEqualTo(0);
             assertThat(summary.getRecentRewards()).isEmpty();
         }
     }

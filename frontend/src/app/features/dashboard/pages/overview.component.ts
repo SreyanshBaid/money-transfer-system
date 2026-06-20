@@ -79,6 +79,8 @@ export class OverviewComponent implements OnInit, OnDestroy {
     username: '',
     totalPoints: 0,
     totalRewards: 0,
+    totalEarned: 0,
+    totalRedeemed: 0,
     recentRewards: []
   };
 

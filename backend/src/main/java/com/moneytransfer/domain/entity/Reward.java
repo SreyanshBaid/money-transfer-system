@@ -32,6 +32,18 @@ public class Reward {
     @Column(nullable = false)
     private String reason;
 
+    @Column(name = "entry_type", nullable = false)
+    private String entryType;
+
+    @Column(name = "account_id")
+    private Long accountId;
+
+    @Column(length = 20)
+    private String status;
+
+    @Column(name = "deposit_txn_id", length = 36)
+    private String depositTxnId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

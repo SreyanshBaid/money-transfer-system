@@ -8,6 +8,10 @@ export interface Reward {
   transactionLogId: string;
   points: number;
   reason: string;
+  entryType?: string;
+  accountId?: number;
+  status?: string;
+  depositTxnId?: string;
   createdAt: string;
 }
 
@@ -16,7 +20,26 @@ export interface RewardSummary {
   username: string;
   totalPoints: number;
   totalRewards: number;
+  totalEarned: number;
+  totalRedeemed: number;
   recentRewards: Reward[];
+}
+
+export interface RedeemRequest {
+  points: number;
+  accountId: number;
+}
+
+export interface RedeemResponse {
+  rewardId: number;
+  userId: number;
+  depositTxnId: string;
+  pointsRedeemed: number;
+  amountCredited: number;
+  accountId: number;
+  status: string;
+  remainingPoints: number;
+  createdAt: string;
 }
 
 @Injectable({
@@ -35,6 +58,10 @@ export class RewardService {
 
   getRewardSummary(): Observable<RewardSummary> {
     return this.http.get<RewardSummary>(`${this.apiUrl}/summary`);
+  }
+
+  redeemPoints(request: RedeemRequest): Observable<RedeemResponse> {
+    return this.http.post<RedeemResponse>(`${this.apiUrl}/redeem`, request);
   }
 
   refreshRewardSummary(): void {

@@ -14,6 +14,7 @@ C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytr
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\domain\exception\AccountNotActiveException.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\dto\response\TransactionLogResponse.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\dto\request\ResetPasswordRequest.java
+C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\dto\response\RedeemResponse.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\config\WebConfig.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\service\TokenBlacklistService.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\config\SecurityConfig.java
@@ -47,6 +48,7 @@ C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytr
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\repository\UserRepository.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\config\JpaConfig.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\service\RewardService.java
+C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\dto\response\RedeemRequest.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\domain\entity\TransactionLog.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\domain\entity\Account.java
 C:\Users\sreya\Downloads\money-transfer-system\backend\src\main\java\com\moneytransfer\controller\RewardController.java

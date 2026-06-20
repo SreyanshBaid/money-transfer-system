@@ -16,5 +16,7 @@ public class RewardSummaryResponse {
     private String username;
     private int totalPoints;
     private int totalRewards;
+    private int totalEarned;
+    private int totalRedeemed;
     private List<RewardResponse> recentRewards;
 }

@@ -5,21 +5,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RewardResponse {
-    private Long id;
+public class RedeemResponse {
+    private Long rewardId;
     private Long userId;
-    private String transactionLogId;
-    private Integer points;
-    private String reason;
-    private String entryType;
+    private String depositTxnId;
+    private int pointsRedeemed;
+    private BigDecimal amountCredited;
     private Long accountId;
     private String status;
-    private String depositTxnId;
+    private int remainingPoints;
     private LocalDateTime createdAt;
 }

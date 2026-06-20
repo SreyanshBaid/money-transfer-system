@@ -18,32 +18,87 @@
     <ng-container *ngIf="!loading && !error">
       <div class="reward-summary">
         <div class="summary-stat">
-          <span class="stat-label">Total Points</span>
+          <span class="stat-label">Available Balance</span>
           <span class="stat-value points-value">{{ totalPoints }}</span>
         </div>
         <div class="summary-stat">
-          <span class="stat-label">Total Rewards</span>
+          <span class="stat-label">Total Earned</span>
+          <span class="stat-value">{{ totalEarned }}</span>
+        </div>
+        <div class="summary-stat">
+          <span class="stat-label">Redeemed</span>
+          <span class="stat-value redeemed-value">{{ totalRedeemed < 0 ? -totalRedeemed : '0' }}</span>
+        </div>
+        <div class="summary-stat">
+          <span class="stat-label">Reward Grants</span>
           <span class="stat-value">{{ totalRewards }}</span>
         </div>
       </div>
 
-      <div *ngIf="rewards.length === 0" class="empty-state">
+      <!-- Redeem Section -->
+      <div class="redeem-section" *ngIf="totalPoints > 0">
+        <h3 class="redeem-title">Redeem Points</h3>
+        <p class="redeem-info">1 point = $1 USD — Points will be deposited into your selected account.</p>
+
+        <div class="redeem-form">
+          <div class="form-group">
+            <label for="redeem-account">Select Account</label>
+            <select id="redeem-account" [(ngModel)]="selectedAccountId" class="form-select">
+              <option [ngValue]="null" disabled>-- Choose an account --</option>
+              <option *ngFor="let acct of accounts" [ngValue]="acct.id">
+                {{ acct.accountNumber }} — {{ acct.accountHolder }} ({{ acct.status }})
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="redeem-points">Points to Redeem</label>
+            <input id="redeem-points" type="number" [(ngModel)]="redeemPointsAmount"
+                   min="1" [max]="maxRedeemable" class="form-input"
+                   placeholder="Enter points (max {{ maxRedeemable }})">
+          </div>
+
+          <button class="btn btn-redeem" (click)="redeemPoints()"
+                  [disabled]="redeemLoading || !redeemPointsAmount || !selectedAccountId">
+            <span *ngIf="redeemLoading" class="spinner-small"></span>
+            <span *ngIf="!redeemLoading">Redeem {{ redeemPointsAmount > 0 ? redeemPointsAmount : '' }} Points</span>
+            <span *ngIf="redeemLoading">Processing...</span>
+          </button>
+        </div>
+
+        <div *ngIf="redeemError" class="alert alert-error redeem-error">
+          {{ redeemError }}
+        </div>
+      </div>
+
+      <div *ngIf="totalPoints === 0" class="empty-state">
         <p>No rewards yet. Make eligible transfers to earn reward points!</p>
       </div>
 
+      <!-- Ledger History -->
       <div *ngIf="rewards.length > 0" class="reward-table-wrapper">
+        <h3 class="ledger-title">Ledger History</h3>
         <table class="reward-table">
           <thead>
             <tr>
+              <th>Type</th>
               <th>Points</th>
               <th>Reason</th>
               <th>Date</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let reward of rewards; trackBy: trackByRewardId">
+            <tr *ngFor="let reward of rewards; trackBy: trackByRewardId"
+                [class.redeem-row]="reward.points < 0">
+              <td class="type-cell">
+                <span class="type-badge" [class.type-grant]="reward.points > 0" [class.type-redeem]="reward.points < 0">
+                  {{ reward.points > 0 ? 'GRANT' : 'REDEEM' }}
+                </span>
+              </td>
               <td class="points-cell">
-                <span class="points-badge">+{{ reward.points }}</span>
+                <span class="points-badge" [class.redeem-points-badge]="reward.points < 0">
+                  {{ reward.points > 0 ? '+' : '' }}{{ reward.points }}
+                </span>
               </td>
               <td class="reason-cell">{{ reward.reason }}</td>
               <td class="date-cell">{{ reward.createdAt | date: 'medium' }}</td>
@@ -55,6 +110,41 @@
 
     <div class="card-footer">
       <button class="btn btn-secondary" (click)="goBack()">Back to Dashboard</button>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal-overlay" *ngIf="redeemSuccess" (click)="closeSuccessModal()">
+    <div class="modal-content success-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header success-header">
+        <div class="success-icon">&#10003;</div>
+        <h2>Points Redeemed!</h2>
+      </div>
+      <div class="modal-body">
+        <div class="redeem-detail">
+          <span class="detail-label">Points Redeemed</span>
+          <span class="detail-value">{{ redeemSuccess.pointsRedeemed }}</span>
+        </div>
+        <div class="redeem-detail">
+          <span class="detail-label">Amount Credited</span>
+          <span class="detail-value">${{ redeemSuccess.amountCredited }}</span>
+        </div>
+        <div class="redeem-detail">
+          <span class="detail-label">Account</span>
+          <span class="detail-value">#{{ redeemSuccess.accountId }}</span>
+        </div>
+        <div class="redeem-detail">
+          <span class="detail-label">Remaining Points</span>
+          <span class="detail-value">{{ redeemSuccess.remainingPoints }}</span>
+        </div>
+        <div class="redeem-detail">
+          <span class="detail-label">Transaction ID</span>
+          <span class="detail-value txn-id">{{ redeemSuccess.depositTxnId }}</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" (click)="closeSuccessModal()">Done</button>
+      </div>
     </div>
   </div>
 </div>
