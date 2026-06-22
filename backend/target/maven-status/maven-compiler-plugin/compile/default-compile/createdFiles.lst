@@ -26,6 +26,7 @@ com\moneytransfer\dto\response\TransferResponse$TransferResponseBuilder.class
 com\moneytransfer\analytics\config\SnowflakeProperties.class
 com\moneytransfer\dto\response\LogoutResponse.class
 com\moneytransfer\dto\request\TransferRequest.class
+com\moneytransfer\dto\response\UserInfoResponse.class
 com\moneytransfer\dto\response\RewardSummaryResponse$RewardSummaryResponseBuilder.class
 com\moneytransfer\service\TokenBlacklistService.class
 com\moneytransfer\security\CustomUserDetailsService.class
@@ -34,6 +35,8 @@ com\moneytransfer\service\AccountService.class
 com\moneytransfer\service\TransferService.class
 com\moneytransfer\domain\exception\UnauthorizedAccessException.class
 com\moneytransfer\dto\response\PaginatedResponse.class
+com\moneytransfer\dto\response\UserInfoResponse$UserInfoResponseBuilder.class
+com\moneytransfer\dto\response\RedeemResponse.class
 com\moneytransfer\service\RewardService.class
 com\moneytransfer\dto\request\CreateAccountRequest$CreateAccountRequestBuilder.class
 com\moneytransfer\domain\entity\UserRole.class
@@ -53,6 +56,7 @@ com\moneytransfer\domain\entity\User.class
 com\moneytransfer\controller\TransferController.class
 com\moneytransfer\analytics\scheduler\AnalyticsExportJob.class
 com\moneytransfer\dto\response\ApiResponse.class
+com\moneytransfer\dto\response\RedeemResponse$RedeemResponseBuilder.class
 com\moneytransfer\domain\entity\Account.class
 com\moneytransfer\dto\request\ResetPasswordRequest.class
 com\moneytransfer\config\JpaConfig.class
@@ -69,6 +73,7 @@ com\moneytransfer\dto\request\ForgotPasswordRequest$ForgotPasswordRequestBuilder
 com\moneytransfer\config\WebConfig.class
 com\moneytransfer\util\RateLimitUtil.class
 com\moneytransfer\dto\response\AccountBalanceResponse$AccountBalanceResponseBuilder.class
+com\moneytransfer\dto\response\RedeemRequest$RedeemRequestBuilder.class
 com\moneytransfer\config\RateLimitConfig.class
 com\moneytransfer\dto\response\TransferResponse.class
 com\moneytransfer\domain\entity\Account$AccountBuilder.class
@@ -76,6 +81,7 @@ com\moneytransfer\dto\response\UserResponse.class
 com\moneytransfer\analytics\config\AnalyticsConfiguration.class
 com\moneytransfer\analytics\exporter\TransactionExportService.class
 com\moneytransfer\dto\response\LogoutResponse$LogoutResponseBuilder.class
+com\moneytransfer\dto\response\RedeemRequest.class
 com\moneytransfer\analytics\model\AnalyticsExportState$AnalyticsExportStateBuilder.class
 com\moneytransfer\dto\request\CreateAccountRequest.class
 com\moneytransfer\advice\GlobalExceptionHandler.class
